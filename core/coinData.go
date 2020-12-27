@@ -7,10 +7,13 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/NebulaTrade/utils"
+	"github.com/ttacon/chalk"
 )
 
 const (
-	HALFCENT = 0.005
+	HALFCENT = 0.000005
 	CENT     = 0.01
 )
 
@@ -64,8 +67,6 @@ func GetLastSell() float64 {
 	lastSellString := string(lastSellPrice)
 	lastSellFloat, _ := strconv.ParseFloat(lastSellString, 8)
 
-	log.Println(lastSellFloat)
-
 	return lastSellFloat
 }
 
@@ -77,7 +78,6 @@ func GetLastBuy() float64 {
 	lastBuyString := string(lastBuy)
 	lastBuyFloat, _ := strconv.ParseFloat(lastBuyString, 8)
 
-	log.Println(lastBuyFloat)
 	return lastBuyFloat
 }
 
@@ -85,6 +85,7 @@ func GetLastBuy() float64 {
 func DecisionMakeBuy() {
 
 	//Check at how much we sold and if the actual price is lower
+	fmt.Println(chalk.Green, "Waiting to buy..")
 
 	updatedCoinPrice := GetLatestData("xrpeur")
 
@@ -92,6 +93,7 @@ func DecisionMakeBuy() {
 	lastPriceFloat, _ := strconv.ParseFloat(updatedCoinPrice.Last, 8)
 
 	log.Println("Last price at:", lastPriceFloat)
+	log.Println("Last sell at:", lastSellFloat)
 
 	/*
 		difference betwen last sell and actual
@@ -102,24 +104,17 @@ func DecisionMakeBuy() {
 
 	if difference >= HALFCENT {
 
-		//Execute buy order..
-		log.Println("Executing buy order... ")
-		log.Println("Great!, you bought this", lastSellFloat-lastPriceFloat, "cheaper ")
-		log.Println()
+		/*
+			EXECUTE BUY ORDER
+		*/
+		log.Println("Great!, you bought this", lastSellFloat-lastPriceFloat, "cheaper \n")
 
 		/*
 			change last sell file with updated info
 			with the lastPriceFloat
 		*/
 
-		updatedPriceBuy := []byte(fmt.Sprintf("%f", lastPriceFloat))
-
-		err := ioutil.WriteFile("core/lastBuy.txt", updatedPriceBuy, 0)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-
+		utils.WriteFile(lastPriceFloat, "core/lastBuy.txt")
 		/*
 			After buying new crypto, execute the function to sell them
 		*/
@@ -128,8 +123,7 @@ func DecisionMakeBuy() {
 		_ = ioutil.WriteFile("core/status.txt", []byte("SELL"), 0)
 
 	} else {
-		log.Println("Waiting for the price to drop.. ")
-		log.Println()
+		log.Println("Waiting for the price to drop.. \n")
 
 	}
 }
@@ -156,13 +150,29 @@ func DecisionMakeSell() {
 
 	differenceToSell := currentPriceFloat - lastBuyFloat
 
-	log.Println("Difference to sell", differenceToSell)
 	if differenceToSell >= HALFCENT {
 
 		/*
 			If the price is greater, then sell
 			Execute sell order
 		*/
+
+		/*
+			Change 2 files:
+				- Last Sell
+				- Ststus to BUY
+		*/
+
+		err := ioutil.WriteFile("core/lastSell.txt",
+			[]byte(fmt.Sprintf("%f", currentPriceFloat)), 0)
+
+		_ = ioutil.WriteFile("core/status.txt",
+			[]byte("BUY"), 0)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
 	}
 
 }
@@ -174,11 +184,9 @@ func ExecuteMarket() {
 		Check the status (BUY OR SELL)
 	*/
 
-	actualStatus, _ := ioutil.ReadFile("core/status.txt")
-	actualStatusString := string(actualStatus)
+	actualStatusString := utils.ReadFile("core/status.txt")
 
-	log.Println(actualStatusString)
-
+	log.Println("status!", actualStatusString)
 	/*
 		depending on the status,
 		we execute buy or sell orders
