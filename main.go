@@ -1,6 +1,10 @@
 package main
 
-import "github.com/NebulaTrade/core"
+import (
+	"time"
+
+	"github.com/NebulaTrade/core"
+)
 
 const (
 	XRP = "xrpeur"
@@ -9,17 +13,16 @@ const (
 
 func main() {
 
-	// w := core.Wallet{
-	// 	Name:         "Naoufal dahouli",
-	// 	Balance:      100,
-	// 	Ammount:      0,
-	// 	Transactions: 0,
-	// }
-	// for x := 1; x < 14400; x++ {
+	w := core.Wallet{
+		Name:         "Naoufal dahouli",
+		Balance:      250,
+		Ammount:      0,
+		Transactions: 0,
+	}
+	for x := 1; x < 14400; x++ {
 
-	// 	w.ExecuteMarket()
-	// 	time.Sleep(2 * time.Second)
-	// }
+		w.ExecuteMarket()
+		time.Sleep(2 * time.Second)
+	}
 
-	core.BitfinexPrice("tXRPUSD")
 }
