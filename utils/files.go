@@ -1,33 +1,8 @@
 package utils
 
 import (
-	"io/ioutil"
-	"log"
 	"strconv"
 )
-
-//WriteFile - writed
-func WriteFile(input string, filename string) string {
-	err := ioutil.WriteFile(filename, []byte(input), 0)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return "Writed correctly :)"
-}
-
-//ReadFile - Read file
-func ReadFile(filename string) string {
-
-	fileContent, err := ioutil.ReadFile("core/status.txt")
-	if err != nil {
-		log.Fatal(err)
-	}
-	fileContentString := string(fileContent)
-
-	return fileContentString
-}
 
 //FloatToString - Convert float to string
 func FloatToString(inputnum float64) string {
