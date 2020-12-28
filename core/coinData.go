@@ -4,16 +4,15 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"reflect"
 	"strconv"
 
-	"github.com/NebulaTrade/utils"
 	"github.com/ttacon/chalk"
+
+	"github.com/NebulaTrade/utils"
 )
 
 const (
-	HALFCENT = 0.0000002
-	CENT     = 0.01
+	PROFITPERTRANS = 0.0000002
 )
 
 //Wallet - contains wallet & info about it
@@ -50,25 +49,32 @@ func GetLastBuy() float64 {
 func (w *Wallet) DecisionMakeBuy() {
 
 	//Check at how much we sold and if the actual price is lower
-	fmt.Println(chalk.Green, "Waiting to buy..")
-
-	updatedCoinPrice := BitstampPrice("xrpeur")
-	//updatedCoinPrice := BinancePrice("XRPBTC")
-
+	buyActualPrice := BitstampPrice("xrpeur")
 	lastSellFloat := GetLastSell()
-	lastPriceFloat, _ := strconv.ParseFloat(updatedCoinPrice.Last, 16)
-
-	log.Println("Last price at:", lastPriceFloat)
-	log.Println("Last sell at:", lastSellFloat)
+	lastPriceFloat := utils.StringToFloat(buyActualPrice.Last)
 
 	/*
 		difference betwen last sell and actual
 		to check if the price dropped
 	*/
 	difference := lastSellFloat - lastPriceFloat
-	log.Println("Difference:", difference)
+	fmt.Println("Waiting for price drop to buy...", chalk.Red)
+	fmt.Println("LIVE Price at: "+strconv.FormatFloat(lastPriceFloat, 'f', 12, 64), chalk.Green)
+	fmt.Println("LAST Sell at: "+strconv.FormatFloat(lastSellFloat, 'f', 12, 64), chalk.Green)
 
-	if difference >= HALFCENT {
+	/*
+		Showing information about the account
+		 - Ammount of crypto
+		 - Actual Balance
+		 - Transaction
+	*/
+
+	fmt.Println("Ammount: ", w.Ammount, chalk.Green)
+	fmt.Println("Actual Balance:", w.Balance, chalk.Green)
+	fmt.Println("Transactions:", w.Transactions, chalk.Green)
+	fmt.Println("-----------------------------", chalk.Red)
+
+	if difference >= PROFITPERTRANS {
 
 		/*
 			EXECUTE BUY ORDER
@@ -85,8 +91,6 @@ func (w *Wallet) DecisionMakeBuy() {
 			Displaying information
 		*/
 
-		log.Println(reflect.TypeOf(lastPriceFloat))
-
 		lastPriceStringToWrite := utils.FloatToString(lastPriceFloat)
 		utils.WriteFile(lastPriceStringToWrite, "core/lastBuy.txt")
 		/*
@@ -97,18 +101,24 @@ func (w *Wallet) DecisionMakeBuy() {
 		_ = ioutil.WriteFile("core/status.txt", []byte("SELL"), 0)
 
 		w.Transactions++
-		log.Println("Great!, you bought this", lastSellFloat-lastPriceFloat, "cheaper ")
-		log.Println("Ammount: ", w.Ammount)
-		log.Println("Actual Balance:", w.Balance)
-		log.Println("Transactions:", w.Transactions)
-		log.Println()
+
+		fmt.Println("Buy order executed!", chalk.Green)
+
+		/*
+			Details about the wallet
+		*/
+		fmt.Println("Ammount: ", w.Ammount, chalk.Green)
+		fmt.Println("Actual Balance:", w.Balance, chalk.Green)
+		fmt.Println("Transactions:", w.Transactions, "\n", chalk.Green)
+		fmt.Println("-----------------------------", chalk.Red)
 
 	} else {
-		log.Println("Actual Balance:", w.Balance)
-		log.Println("Transactions:", w.Transactions)
-		log.Println("Actual Ammount:", w.Ammount)
-		log.Println("Waiting for the price to drop.. ")
-		log.Println()
+
+		// fmt.Println("Actual Balance:", w.Balance, chalk.Green)
+		// fmt.Println("Transactions:", w.Transactions, chalk.Green)
+		// fmt.Println("Actual Ammount:", w.Ammount, chalk.Green)
+		// fmt.Println("Waiting for the price to drop.. ", chalk.Green)
+		// fmt.Println(, chalk.Green)
 
 	}
 }
@@ -124,21 +134,27 @@ func (w *Wallet) DecisionMakeSell() {
 
 	data := BitstampPrice("xrpeur")
 	//data := BinancePrice("TRXBTC")
-	log.Println("Waiting to sell, price now at:", data.Last)
 
-	log.Print(reflect.TypeOf(data.Last))
 	currentPriceFloat, _ := strconv.ParseFloat(data.Last, 16)
 	/*
 		Information about the last BUY
 	*/
 	lastBuyFloat := GetLastBuy()
 
-	log.Println("LAST BUY:", lastBuyFloat)
-
 	differenceToSell := currentPriceFloat - lastBuyFloat
 
-	log.Println("Difference to sell:", differenceToSell)
-	if differenceToSell >= HALFCENT {
+	/*
+		Displaying information in the console
+	*/
+	fmt.Println("Waiting to sell, price now at:", data.Last, chalk.Green)
+	fmt.Println("Difference to sell:", differenceToSell, chalk.Green)
+	fmt.Println("LAST BUY:", lastBuyFloat, chalk.Green)
+	fmt.Println("Ammount:", w.Ammount, chalk.Green)
+	fmt.Println("Balance:", w.Balance, chalk.Green)
+	fmt.Println("Transactions:", w.Transactions, chalk.Green)
+	fmt.Println("-----------------------------", chalk.Red)
+
+	if differenceToSell >= PROFITPERTRANS {
 
 		/*
 			If the price is greater, then sell
@@ -165,14 +181,9 @@ func (w *Wallet) DecisionMakeSell() {
 			log.Fatal(err)
 		}
 
-		log.Println("SOLD!")
+		fmt.Println("SOLD!", chalk.Green)
 		w.Transactions++
 	}
-
-	log.Println("Actual Ammount:", w.Ammount)
-	log.Println("Actual Balance:", w.Balance)
-	log.Println("Transactions:", w.Transactions)
-	log.Println()
 
 }
 
