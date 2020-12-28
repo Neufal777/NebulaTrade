@@ -1,11 +1,10 @@
 package core
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net/http"
+	"reflect"
 	"strconv"
 
 	"github.com/NebulaTrade/utils"
@@ -13,50 +12,16 @@ import (
 )
 
 const (
-	HALFCENT = 0.000005
+	HALFCENT = 0.0000002
 	CENT     = 0.01
 )
 
-//Coin - latest info about the coin
-type Coin struct {
-	High      string `json:"high"`
-	Last      string `json:"last"`
-	Timestamp string `json:"timestamp"`
-	Bid       string `json:"bid"`
-	Vwap      string `json:"vwap"`
-	Volume    string `json:"volume"`
-	Low       string `json:"low"`
-	Ask       string `json:"ask"`
-	Open      string `json:"open"`
-}
-
-//GetLatestData - get latest data of X coin
-func GetLatestData(exchange string) Coin {
-
-	var CoinData Coin
-	resp, err := http.Get("https://www.bitstamp.net/api/v2/ticker/" + exchange)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer resp.Body.Close()
-
-	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatal(err)
-
-	}
-	err = json.Unmarshal(data, &CoinData)
-
-	if err != nil {
-		log.Fatal("Decoding error: ", err)
-	}
-
-	//time.Sleep(1 * time.Second)
-	//DecisionMakeBuy(&CoinData)
-	return CoinData
-
+//Wallet - contains wallet & info about it
+type Wallet struct {
+	Name         string
+	Balance      float64
+	Ammount      float64
+	Transactions int
 }
 
 //GetLastSell - gets the price of your last sell
@@ -82,15 +47,16 @@ func GetLastBuy() float64 {
 }
 
 //DecisionMakeBuy - where the decisions of buying or selling is made
-func DecisionMakeBuy() {
+func (w *Wallet) DecisionMakeBuy() {
 
 	//Check at how much we sold and if the actual price is lower
 	fmt.Println(chalk.Green, "Waiting to buy..")
 
-	updatedCoinPrice := GetLatestData("xrpeur")
+	updatedCoinPrice := BitstampPrice("xrpeur")
+	//updatedCoinPrice := BinancePrice("XRPBTC")
 
 	lastSellFloat := GetLastSell()
-	lastPriceFloat, _ := strconv.ParseFloat(updatedCoinPrice.Last, 8)
+	lastPriceFloat, _ := strconv.ParseFloat(updatedCoinPrice.Last, 16)
 
 	log.Println("Last price at:", lastPriceFloat)
 	log.Println("Last sell at:", lastSellFloat)
@@ -107,14 +73,22 @@ func DecisionMakeBuy() {
 		/*
 			EXECUTE BUY ORDER
 		*/
-		log.Println("Great!, you bought this", lastSellFloat-lastPriceFloat, "cheaper \n")
 
 		/*
 			change last sell file with updated info
 			with the lastPriceFloat
 		*/
 
-		utils.WriteFile(lastPriceFloat, "core/lastBuy.txt")
+		w.Ammount = w.Balance / lastPriceFloat
+
+		/*
+			Displaying information
+		*/
+
+		log.Println(reflect.TypeOf(lastPriceFloat))
+
+		lastPriceStringToWrite := utils.FloatToString(lastPriceFloat)
+		utils.WriteFile(lastPriceStringToWrite, "core/lastBuy.txt")
 		/*
 			After buying new crypto, execute the function to sell them
 		*/
@@ -122,14 +96,25 @@ func DecisionMakeBuy() {
 		//change status from buying to selling
 		_ = ioutil.WriteFile("core/status.txt", []byte("SELL"), 0)
 
+		w.Transactions++
+		log.Println("Great!, you bought this", lastSellFloat-lastPriceFloat, "cheaper ")
+		log.Println("Ammount: ", w.Ammount)
+		log.Println("Actual Balance:", w.Balance)
+		log.Println("Transactions:", w.Transactions)
+		log.Println()
+
 	} else {
-		log.Println("Waiting for the price to drop.. \n")
+		log.Println("Actual Balance:", w.Balance)
+		log.Println("Transactions:", w.Transactions)
+		log.Println("Actual Ammount:", w.Ammount)
+		log.Println("Waiting for the price to drop.. ")
+		log.Println()
 
 	}
 }
 
 //DecisionMakeSell - once we've bought new crypto, we wait to sell them
-func DecisionMakeSell() {
+func (w *Wallet) DecisionMakeSell() {
 
 	/*
 		Get latest data from the coin
@@ -137,10 +122,12 @@ func DecisionMakeSell() {
 		and change status from buying to selling
 	*/
 
-	data := GetLatestData("xrpeur")
+	data := BitstampPrice("xrpeur")
+	//data := BinancePrice("TRXBTC")
 	log.Println("Waiting to sell, price now at:", data.Last)
 
-	currentPriceFloat, _ := strconv.ParseFloat(data.Last, 8)
+	log.Print(reflect.TypeOf(data.Last))
+	currentPriceFloat, _ := strconv.ParseFloat(data.Last, 16)
 	/*
 		Information about the last BUY
 	*/
@@ -150,6 +137,7 @@ func DecisionMakeSell() {
 
 	differenceToSell := currentPriceFloat - lastBuyFloat
 
+	log.Println("Difference to sell:", differenceToSell)
 	if differenceToSell >= HALFCENT {
 
 		/*
@@ -162,9 +150,13 @@ func DecisionMakeSell() {
 				- Last Sell
 				- Ststus to BUY
 		*/
+		w.Balance = w.Ammount * currentPriceFloat
+		w.Ammount = 0
+
+		lastPriceStringToWrite := utils.FloatToString(currentPriceFloat)
 
 		err := ioutil.WriteFile("core/lastSell.txt",
-			[]byte(fmt.Sprintf("%f", currentPriceFloat)), 0)
+			[]byte(lastPriceStringToWrite), 0)
 
 		_ = ioutil.WriteFile("core/status.txt",
 			[]byte("BUY"), 0)
@@ -173,12 +165,19 @@ func DecisionMakeSell() {
 			log.Fatal(err)
 		}
 
+		log.Println("SOLD!")
+		w.Transactions++
 	}
+
+	log.Println("Actual Ammount:", w.Ammount)
+	log.Println("Actual Balance:", w.Balance)
+	log.Println("Transactions:", w.Transactions)
+	log.Println()
 
 }
 
 //ExecuteMarket - workflow of the program
-func ExecuteMarket() {
+func (w *Wallet) ExecuteMarket() {
 
 	/*
 		Check the status (BUY OR SELL)
@@ -186,16 +185,15 @@ func ExecuteMarket() {
 
 	actualStatusString := utils.ReadFile("core/status.txt")
 
-	log.Println("status!", actualStatusString)
 	/*
 		depending on the status,
 		we execute buy or sell orders
 	*/
 	switch actualStatusString {
 	case "BUY":
-		DecisionMakeBuy()
+		w.DecisionMakeBuy()
 	case "SELL":
-		DecisionMakeSell()
+		w.DecisionMakeSell()
 	}
 
 }

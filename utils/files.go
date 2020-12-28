@@ -1,14 +1,14 @@
 package utils
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
+	"strconv"
 )
 
 //WriteFile - writed
-func WriteFile(input float64, filename string) string {
-	err := ioutil.WriteFile(filename, []byte(fmt.Sprintf("%f", input)), 0)
+func WriteFile(input string, filename string) string {
+	err := ioutil.WriteFile(filename, []byte(input), 0)
 
 	if err != nil {
 		log.Fatal(err)
@@ -27,4 +27,17 @@ func ReadFile(filename string) string {
 	fileContentString := string(fileContent)
 
 	return fileContentString
+}
+
+//FloatToString - Convert float to string
+func FloatToString(inputnum float64) string {
+	// to convert a float number to a string
+	return strconv.FormatFloat(inputnum, 'f', 12, 64)
+}
+
+//StringToFloat - Convert string to float
+func StringToFloat(input string) float64 {
+
+	result, _ := strconv.ParseFloat(input, 64)
+	return result
 }
