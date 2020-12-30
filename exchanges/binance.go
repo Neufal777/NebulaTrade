@@ -7,6 +7,11 @@ import (
 	"net/http"
 )
 
+const (
+	//MITHBNB exchange from binance
+	MITHBNB = "MITHBNB"
+)
+
 //BinanceCoin -
 type BinanceCoin struct {
 	Symbol string `json:"symbol"`

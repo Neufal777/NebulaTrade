@@ -7,11 +7,6 @@ import (
 	"github.com/NebulaTrade/wallet"
 )
 
-const (
-	XRP = "xrpeur"
-	BTC = "btceur"
-)
-
 func main() {
 
 	for {
@@ -20,5 +15,4 @@ func main() {
 		time.Sleep(1 * time.Second)
 	}
 
-	//binanceaccount.CheckWalletData()
 }

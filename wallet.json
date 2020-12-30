@@ -1,9 +1,9 @@
 {
  "Name": "naoufal dahouli",
- "Balance": 32.01800849777161,
- "Ammount": 0,
- "Status": "BUY",
- "LastBuy": 0.01777,
- "LastSell": 0.0177800003439188,
- "Transactions": 2
+ "Balance": 32.380952810247734,
+ "Ammount": 76550.71586346983,
+ "Status": "SELL",
+ "LastBuy": 0.000423,
+ "LastSell": 0.0004250000056345016,
+ "Transactions": 3
 }
