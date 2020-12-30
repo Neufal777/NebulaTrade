@@ -50,17 +50,12 @@ func DecisionMakeBuy(w *wallet.Wallet) {
 			with the lastPriceFloat
 		*/
 
-		// lastPriceStringToWrite := utils.FloatToString(lastPriceFloat)
-		// utils.WriteFile(lastPriceStringToWrite, "core/lastBuy.txt")
-
 		w.LastBuy = lastPriceFloat
 		w.Status = "SELL"
 		w.Transactions++
 		w.Ammount = w.Balance / lastPriceFloat
 
 		w.WriteInWallet()
-		//change status from buying to selling
-		//_ = ioutil.WriteFile("core/status.txt", []byte("SELL"), 0)
 
 		/*
 			- Displaying information

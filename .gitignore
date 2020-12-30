@@ -15,3 +15,4 @@
 # vendor/
 
 NebulaTrade
+config.go
