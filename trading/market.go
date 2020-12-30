@@ -6,6 +6,7 @@ import (
 
 	"github.com/ttacon/chalk"
 
+	"github.com/NebulaTrade/console"
 	"github.com/NebulaTrade/exchanges"
 	"github.com/NebulaTrade/utils"
 	"github.com/NebulaTrade/wallet"
@@ -13,14 +14,14 @@ import (
 
 const (
 	//PROFITPERTRANS - profit we want for each transfer
-	PROFITPERTRANS = 0.00001
+	PROFITPERTRANS = 0.000002
 )
 
 //DecisionMakeBuy - where the decisions of buying or selling is made
 func DecisionMakeBuy(w *wallet.Wallet) {
 
 	//Check at how much we sold and if the actual price is lower
-	buyActualPrice := exchanges.BinancePrice("LUNABNB")
+	buyActualPrice := exchanges.BinancePrice(exchanges.MITHBNB)
 	lastSellFloat := wallet.GetLastSell()
 	lastPriceFloat := utils.StringToFloat(buyActualPrice.Price)
 
@@ -29,22 +30,15 @@ func DecisionMakeBuy(w *wallet.Wallet) {
 		to check if the price dropped
 	*/
 	difference := lastSellFloat - lastPriceFloat
-	fmt.Println("Waiting for price drop to buy...", chalk.Red)
-	fmt.Println("LIVE Price at: "+strconv.FormatFloat(lastPriceFloat, 'f', 12, 64), chalk.Green)
-	fmt.Println("LAST Sell at: "+strconv.FormatFloat(lastSellFloat, 'f', 12, 64), chalk.Green)
+	fmt.Println(chalk.Bold.TextStyle("Waiting for price drop to buy..."), chalk.Red)
 
 	/*
 		Showing information about the account
 		 - Ammount of crypto
 		 - Actual Balance
-		 - Transaction
+		 - Transaction...
 	*/
-
-	fmt.Println("Ammount: ", w.Ammount, chalk.Green)
-	fmt.Println("Actual Balance:", w.Balance, chalk.Green)
-	fmt.Println("Transactions:", w.Transactions, chalk.Green)
-	fmt.Println("-----------------------------", chalk.Red)
-
+	console.InformationDisplayConsole()
 	if difference >= PROFITPERTRANS {
 
 		/*
@@ -73,20 +67,8 @@ func DecisionMakeBuy(w *wallet.Wallet) {
 			- Details about the *wallet.Wallet
 		*/
 
-		fmt.Println("Buy order executed!", chalk.Green)
-
-		fmt.Println("Ammount: ", w.Ammount, chalk.Green)
-		fmt.Println("Actual Balance:", w.Balance, chalk.Green)
-		fmt.Println("Transactions:", w.Transactions, "\n", chalk.Green)
-		fmt.Println("-----------------------------", chalk.Red)
-
-	} else {
-
-		// fmt.Println("Actual Balance:", w.Balance, chalk.Green)
-		// fmt.Println("Transactions:", w.Transactions, chalk.Green)
-		// fmt.Println("Actual Ammount:", w.Ammount, chalk.Green)
-		// fmt.Println("Waiting for the price to drop.. ", chalk.Green)
-		// fmt.Println(, chalk.Green)
+		fmt.Println(chalk.Bold.TextStyle("BUY ORDER EXECUTED!"), chalk.Green)
+		console.InformationDisplayConsole()
 
 	}
 }
@@ -101,26 +83,20 @@ func DecisionMakeSell() {
 	*/
 
 	w := wallet.ReadWallet()
-	data := exchanges.BinancePrice("LUNABNB")
+	data := exchanges.BinancePrice(exchanges.MITHBNB)
 
 	currentPriceFloat, _ := strconv.ParseFloat(data.Price, 32)
 	/*
 		Information about the last BUY
 	*/
-	lastBuyFloat := wallet.GetLastBuy()
 
-	differenceToSell := currentPriceFloat - lastBuyFloat
+	differenceToSell := currentPriceFloat - w.LastBuy
 
 	/*
 		Displaying information in the console
 	*/
-	fmt.Println("Waiting to sell, price now at:", data.Price, chalk.Green)
-	fmt.Println("Last Buy:", lastBuyFloat, chalk.Green)
-	fmt.Println("Difference to sell:", differenceToSell, chalk.Green)
-	fmt.Println("Ammount:", w.Ammount, chalk.Green)
-	fmt.Println("Balance:", w.Balance, chalk.Green)
-	fmt.Println("Transactions:", w.Transactions, chalk.Green)
-	fmt.Println("-----------------------------", chalk.Red)
+	fmt.Println(chalk.Bold.TextStyle("Waiting to sell.."), chalk.Green)
+	console.InformationDisplayConsole()
 
 	if differenceToSell >= PROFITPERTRANS {
 
@@ -138,13 +114,13 @@ func DecisionMakeSell() {
 		w.Balance = w.Ammount * currentPriceFloat
 		w.Ammount = 0
 		w.Status = "BUY"
-
+		w.Transactions++
 		w.LastSell = currentPriceFloat
 
 		w.WriteInWallet()
 
-		fmt.Println("SOLD!", chalk.Green)
-		w.Transactions++
+		fmt.Println(chalk.Bold.TextStyle("SOLD!"), chalk.Green)
+
 	}
 
 }
@@ -162,6 +138,7 @@ func ExecuteMarket(w *wallet.Wallet) {
 		depending on the status,
 		we execute buy or sell orders
 	*/
+
 	switch actualStatusString {
 	case "BUY":
 		DecisionMakeBuy(w)
