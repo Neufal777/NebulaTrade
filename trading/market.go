@@ -13,7 +13,7 @@ import (
 
 const (
 	//PROFITPERTRANS - profit we want for each transfer
-	PROFITPERTRANS = 0.0002
+	PROFITPERTRANS = 0.00001
 )
 
 //DecisionMakeBuy - where the decisions of buying or selling is made
@@ -50,7 +50,7 @@ func DecisionMakeBuy(w *wallet.Wallet) {
 		/*
 			EXECUTE BUY ORDER
 		*/
-
+		//execorder.BuyOrder()
 		/*
 			change last sell file with updated info
 			with the lastPriceFloat
@@ -127,6 +127,7 @@ func DecisionMakeSell() {
 		/*
 			EXECUTE SELL ORDER
 		*/
+		//execorder.SellOrder()
 
 		/*
 			Change 2 files:
