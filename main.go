@@ -27,20 +27,11 @@ func main() {
 	// 	time.Sleep(2 * time.Second)
 	// }
 
-	w := wallet.Wallet{
-		Name:         "naoufal boubouh",
-		Balance:      230,
-		Ammount:      0,
-		Status:       "BUY",
-		LastBuy:      0.34,
-		LastSell:     0.10,
-		Transactions: 0,
-	}
-
 	//w.WriteInWallet()
 
 	for {
-		trading.ExecuteMarket(w)
-		time.Sleep(1 * time.Second)
+		w := wallet.ReadWallet()
+		trading.ExecuteMarket(&w)
+		time.Sleep(3 * time.Second)
 	}
 }

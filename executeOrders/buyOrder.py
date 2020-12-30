@@ -1,0 +1,1 @@
+print("BUY ORDER EXECUTED!")
