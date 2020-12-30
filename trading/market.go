@@ -13,16 +13,16 @@ import (
 
 const (
 	//PROFITPERTRANS - profit we want for each transfer
-	PROFITPERTRANS = -0.00000002
+	PROFITPERTRANS = 0.0002
 )
 
 //DecisionMakeBuy - where the decisions of buying or selling is made
-func DecisionMakeBuy(w wallet.Wallet) {
+func DecisionMakeBuy(w *wallet.Wallet) {
 
 	//Check at how much we sold and if the actual price is lower
-	buyActualPrice := exchanges.BitstampPrice("xrpeur")
+	buyActualPrice := exchanges.BinancePrice("LUNABNB")
 	lastSellFloat := wallet.GetLastSell()
-	lastPriceFloat := utils.StringToFloat(buyActualPrice.Last)
+	lastPriceFloat := utils.StringToFloat(buyActualPrice.Price)
 
 	/*
 		difference betwen last sell and actual
@@ -70,7 +70,7 @@ func DecisionMakeBuy(w wallet.Wallet) {
 
 		/*
 			- Displaying information
-			- Details about the wallet.Wallet
+			- Details about the *wallet.Wallet
 		*/
 
 		fmt.Println("Buy order executed!", chalk.Green)
@@ -101,9 +101,9 @@ func DecisionMakeSell() {
 	*/
 
 	w := wallet.ReadWallet()
-	data := exchanges.BitstampPrice("xrpeur")
+	data := exchanges.BinancePrice("LUNABNB")
 
-	currentPriceFloat, _ := strconv.ParseFloat(data.Last, 32)
+	currentPriceFloat, _ := strconv.ParseFloat(data.Price, 32)
 	/*
 		Information about the last BUY
 	*/
@@ -114,9 +114,9 @@ func DecisionMakeSell() {
 	/*
 		Displaying information in the console
 	*/
-	fmt.Println("Waiting to sell, price now at:", data.Last, chalk.Green)
+	fmt.Println("Waiting to sell, price now at:", data.Price, chalk.Green)
+	fmt.Println("Last Buy:", lastBuyFloat, chalk.Green)
 	fmt.Println("Difference to sell:", differenceToSell, chalk.Green)
-	fmt.Println("LAST BUY:", lastBuyFloat, chalk.Green)
 	fmt.Println("Ammount:", w.Ammount, chalk.Green)
 	fmt.Println("Balance:", w.Balance, chalk.Green)
 	fmt.Println("Transactions:", w.Transactions, chalk.Green)
@@ -125,8 +125,7 @@ func DecisionMakeSell() {
 	if differenceToSell >= PROFITPERTRANS {
 
 		/*
-			If the price is greater, then sell
-			Execute sell order
+			EXECUTE SELL ORDER
 		*/
 
 		/*
@@ -138,6 +137,7 @@ func DecisionMakeSell() {
 		w.Balance = w.Ammount * currentPriceFloat
 		w.Ammount = 0
 		w.Status = "BUY"
+
 		w.LastSell = currentPriceFloat
 
 		w.WriteInWallet()
@@ -149,7 +149,7 @@ func DecisionMakeSell() {
 }
 
 //ExecuteMarket - workflow of the program
-func ExecuteMarket(w wallet.Wallet) {
+func ExecuteMarket(w *wallet.Wallet) {
 
 	/*
 		Check the status (BUY OR SELL)
