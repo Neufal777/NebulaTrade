@@ -44,25 +44,22 @@ func DecisionMakeBuy(w *wallet.Wallet) {
 		/*
 			EXECUTE BUY ORDER
 		*/
-		//execorder.BuyOrder()
+
+		currentWallet := exchanges.GetBinanceWalletBNB() - 0.01646
+		ammountToBuy := currentWallet / lastPriceFloat
+
+		ammountString := utils.FloatToString(ammountToBuy)
+		exchanges.ExecuteBuyOrderMITHBNB(ammountString, buyActualPrice.Price, w)
 		/*
 			change last sell file with updated info
 			with the lastPriceFloat
 		*/
-
-		w.LastBuy = lastPriceFloat
-		w.Status = "SELL"
-		w.Transactions++
-		w.Ammount = w.Balance / lastPriceFloat
-
-		w.WriteInWallet()
 
 		/*
 			- Displaying information
 			- Details about the *wallet.Wallet
 		*/
 
-		fmt.Println(chalk.Bold.TextStyle("BUY ORDER EXECUTED!"), chalk.Green)
 		console.InformationDisplayConsole()
 
 	}
@@ -138,7 +135,7 @@ func ExecuteMarket(w *wallet.Wallet) {
 	case "BUY":
 		DecisionMakeBuy(w)
 	case "SELL":
-		DecisionMakeSell()
+		//DecisionMakeSell()
 	}
 
 }
