@@ -2,12 +2,14 @@ package trading
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/ttacon/chalk"
 
 	"github.com/NebulaTrade/console"
 	"github.com/NebulaTrade/exchanges"
+	"github.com/NebulaTrade/mathnebula"
 	"github.com/NebulaTrade/utils"
 	"github.com/NebulaTrade/wallet"
 )
@@ -48,8 +50,12 @@ func DecisionMakeBuy(w *wallet.Wallet) {
 		currentWallet := exchanges.GetBinanceWalletBNB() - 0.01646
 		ammountToBuy := currentWallet / lastPriceFloat
 
-		ammountString := utils.FloatToString(ammountToBuy)
-		exchanges.ExecuteBuyOrderMITHBNB(ammountString, buyActualPrice.Price, w)
+		truncateAmmountToBuy := mathnebula.ToFixed((ammountToBuy), 7)
+
+		ammountString := utils.FloatToString(truncateAmmountToBuy)
+
+		//Execute Buy
+		exchanges.ExecuteBuyOrderMITHBNB(ammountString[:len(ammountString)-13], buyActualPrice.Price, w)
 		/*
 			change last sell file with updated info
 			with the lastPriceFloat
@@ -95,13 +101,16 @@ func DecisionMakeSell() {
 		/*
 			EXECUTE SELL ORDER
 		*/
-		//execorder.SellOrder()
 
 		/*
 			Change 2 files:
 				- Last Sell
 				- Ststus to BUY
 		*/
+		truncatedAmmountToSell := mathnebula.ToFixed((w.Ammount), 7)
+		ammountStringSell := utils.FloatToString(truncatedAmmountToSell)
+
+		exchanges.ExecuteSellOrderMITHBNB(ammountStringSell[:len(ammountStringSell)-13], data.Price, &w)
 
 		w.Balance = w.Ammount * currentPriceFloat
 		w.Ammount = 0
@@ -135,7 +144,9 @@ func ExecuteMarket(w *wallet.Wallet) {
 	case "BUY":
 		DecisionMakeBuy(w)
 	case "SELL":
-		//DecisionMakeSell()
+		DecisionMakeSell()
+	case "ORDER":
+		log.Println("waiting for order to execute..")
 	}
 
 }
