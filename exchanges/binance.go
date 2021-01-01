@@ -92,15 +92,29 @@ func ExecuteBuyOrderMITHBNB(ammountToBuy string, priceToBuy string, w *wallet.Wa
 	/*
 		If the order is made successfuly update the wallet
 	*/
+	opened := CheckOpenOrdersBinance()
 
-	w.Status = "SELL"
-	w.Balance = GetBinanceWalletBNB()
-	w.Transactions++
-	w.LastBuy = utils.StringToFloat(priceToBuy)
-	w.Ammount = utils.StringToFloat(ammountToBuy)
+	switch opened {
+	case 0:
 
-	w.WriteInWallet()
-	fmt.Println(chalk.Bold.TextStyle("BUY ORDER EXECUTED!"), chalk.Green)
+		//If the order is closed, update the file with the information
+		w.Status = "SELL"
+		w.Balance = GetBinanceWalletBNB()
+		w.LastBuy = utils.StringToFloat(priceToBuy)
+		w.Ammount = utils.StringToFloat(ammountToBuy)
+		w.Balance = GetBinanceWalletBNB()
+		w.Transactions++
+
+		//Write the update information in our register
+		w.WriteInWallet()
+
+		fmt.Println(chalk.Bold.TextStyle("BUY ORDER EXECUTED!"), chalk.Green)
+
+	case 1:
+		w.Status = "ORDER"
+		w.WriteInWallet()
+	}
+
 }
 
 //ExecuteSellOrderMITHBNB -
@@ -113,20 +127,61 @@ func ExecuteSellOrderMITHBNB(ammountToSell string, priceToSell string, w *wallet
 		TimeInForce(binance.TimeInForceTypeGTC).Quantity(ammountToSell).
 		Price(priceToSell).Do(context.Background())
 
+	log.Println("PRICE TO SELL", priceToSell)
+	log.Println("AMMOUNT TO SELL", ammountToSell)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	/*
-		If the order is made successfuly update the wallet
-	*/
+	openOrders := CheckOpenOrdersBinance()
 
-	w.Status = "BUY"
-	w.Balance = GetBinanceWalletBNB()
-	w.Transactions++
-	w.LastSell = utils.StringToFloat(priceToSell)
+	switch openOrders {
+	case 0:
 
-	w.WriteInWallet()
-	fmt.Println(chalk.Bold.TextStyle("SELL ORDER EXECUTED!"), chalk.Green)
+		/*
+			If the order is made successfuly update the wallet
+		*/
+
+		w.Status = "BUY"
+		w.Balance = GetBinanceWalletBNB()
+		w.Transactions++
+		w.LastSell = utils.StringToFloat(priceToSell)
+
+		w.WriteInWallet()
+		fmt.Println(chalk.Bold.TextStyle("SELL ORDER EXECUTED!"), chalk.Green)
+
+	case 1:
+		w.Status = "ORDER"
+		w.WriteInWallet()
+	}
+}
+
+//CheckOpenOrdersBinance -
+func CheckOpenOrdersBinance() int {
+
+	client := binance.NewClient(apiKey, secretKey)
+
+	//check open orders from the user
+	openOrders, err := client.NewListOpenOrdersService().Symbol("MITHBNB").
+		Do(context.Background())
+	if err != nil {
+		fmt.Println(err)
+
+	}
+	fmt.Println(openOrders)
+
+	for _, o := range openOrders {
+
+		//Show active orders
+		log.Println("ORDER Id:", o.OrderID)
+		log.Println("ORDER Status:", o.Side)
+		log.Println("ORDER Price:", o.Price)
+	}
+
+	if len(openOrders) >= 1 {
+		return 1
+	}
+
+	return 0
 }

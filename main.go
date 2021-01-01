@@ -1,24 +1,30 @@
 package main
 
 import (
-	"time"
+	"log"
 
 	"github.com/NebulaTrade/exchanges"
-	"github.com/NebulaTrade/trading"
-	"github.com/NebulaTrade/wallet"
 )
 
 func main() {
 
-	for {
+	// for {
 
-		w := wallet.ReadWallet()
-		w.Balance = exchanges.GetBinanceWalletBNB()
-		w.WriteInWallet()
-		trading.ExecuteMarket(&w)
-		time.Sleep(2 * time.Second)
+	// 	w := wallet.ReadWallet()
+	// 	w.Balance = exchanges.GetBinanceWalletBNB()
+	// 	w.WriteInWallet()
+	// 	trading.ExecuteMarket(&w)
+	// 	time.Sleep(2 * time.Second)
+	// }
+
+	openOrders := exchanges.CheckOpenOrdersBinance()
+
+	if openOrders == 1 {
+
+		log.Println("OPENED ORDERS")
+
+	} else if openOrders == 0 {
+		log.Println("NO OPEN ORDERS")
 	}
 
-	//fmt.Println(exchanges.GetBinanceWalletBNB())
-	//log.Println(exchanges.GetBinanceWalletBNB() - 0.01646)
 }

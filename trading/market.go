@@ -2,6 +2,7 @@ package trading
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/ttacon/chalk"
@@ -106,8 +107,11 @@ func DecisionMakeSell() {
 				- Last Sell
 				- Ststus to BUY
 		*/
+		truncatedAmmountToSell := mathnebula.ToFixed((w.Ammount), 7)
+		ammountStringSell := utils.FloatToString(truncatedAmmountToSell)
 
-		exchanges.ExecuteSellOrderMITHBNB(utils.FloatToString(w.Ammount), data.Price, &w)
+		exchanges.ExecuteSellOrderMITHBNB(ammountStringSell[:len(ammountStringSell)-13], data.Price, &w)
+
 		w.Balance = w.Ammount * currentPriceFloat
 		w.Ammount = 0
 		w.Status = "BUY"
@@ -141,6 +145,8 @@ func ExecuteMarket(w *wallet.Wallet) {
 		DecisionMakeBuy(w)
 	case "SELL":
 		DecisionMakeSell()
+	case "ORDER":
+		log.Println("waiting for order to execute..")
 	}
 
 }
