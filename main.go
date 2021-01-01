@@ -12,7 +12,9 @@ func main() {
 	for {
 		w := wallet.ReadWallet()
 		trading.ExecuteMarket(&w)
-		time.Sleep(1 * time.Second)
+		time.Sleep(4 * time.Second)
 	}
 
+	//fmt.Println(exchanges.GetBinanceWalletBNB())
+	//log.Println(exchanges.GetBinanceWalletBNB() - 0.01646)
 }
