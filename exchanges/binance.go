@@ -97,7 +97,36 @@ func ExecuteBuyOrderMITHBNB(ammountToBuy string, priceToBuy string, w *wallet.Wa
 	w.Balance = GetBinanceWalletBNB()
 	w.Transactions++
 	w.LastBuy = utils.StringToFloat(priceToBuy)
-	//w.Ammount = w.Balance / lastPriceFloat
+	w.Ammount = utils.StringToFloat(ammountToBuy)
+
 	w.WriteInWallet()
 	fmt.Println(chalk.Bold.TextStyle("BUY ORDER EXECUTED!"), chalk.Green)
+}
+
+//ExecuteSellOrderMITHBNB -
+func ExecuteSellOrderMITHBNB(ammountToSell string, priceToSell string, w *wallet.Wallet) {
+
+	client := binance.NewClient(apiKey, secretKey)
+
+	_, err := client.NewCreateOrderService().Symbol("MITHBNB").
+		Side(binance.SideTypeSell).Type(binance.OrderTypeLimit).
+		TimeInForce(binance.TimeInForceTypeGTC).Quantity(ammountToSell).
+		Price(priceToSell).Do(context.Background())
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	/*
+		If the order is made successfuly update the wallet
+	*/
+
+	w.Status = "BUY"
+	w.Balance = GetBinanceWalletBNB()
+	w.Transactions++
+	w.LastSell = utils.StringToFloat(priceToSell)
+
+	w.WriteInWallet()
+	fmt.Println(chalk.Bold.TextStyle("SELL ORDER EXECUTED!"), chalk.Green)
 }
