@@ -23,6 +23,7 @@ var (
 const (
 	//MITHBNB exchange from binance
 	MITHBNB = "MITHBNB"
+	XRPBNB  = "XRPBNB"
 )
 
 //BinanceCoin -

@@ -16,7 +16,7 @@ import (
 
 const (
 	//PROFITPERTRANS - profit we want for each transfer
-	PROFITPERTRANS = 0.000002
+	PROFITPERTRANS = 0.000001
 )
 
 //DecisionMakeBuy - where the decisions of buying or selling is made
@@ -47,7 +47,7 @@ func DecisionMakeBuy(w *wallet.Wallet) {
 			EXECUTE BUY ORDER
 		*/
 
-		currentWallet := exchanges.GetBinanceWalletBNB() - 0.01646
+		currentWallet := exchanges.GetBinanceWalletBNB() //- 0.01646
 		ammountToBuy := currentWallet / lastPriceFloat
 
 		truncateAmmountToBuy := mathnebula.ToFixed((ammountToBuy), 7)
@@ -111,12 +111,6 @@ func DecisionMakeSell() {
 		ammountStringSell := utils.FloatToString(truncatedAmmountToSell)
 
 		exchanges.ExecuteSellOrderMITHBNB(ammountStringSell[:len(ammountStringSell)-13], data.Price, &w)
-
-		w.Balance = w.Ammount * currentPriceFloat
-		w.Ammount = 0
-		w.Status = "BUY"
-		w.Transactions++
-		w.LastSell = currentPriceFloat
 
 		w.WriteInWallet()
 
