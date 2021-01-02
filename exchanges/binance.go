@@ -93,7 +93,7 @@ func ExecuteBuyOrderMITHBNB(ammountToBuy string, priceToBuy string, w *wallet.Wa
 	/*
 		If the order is made successfuly update the wallet
 	*/
-	opened, _ := CheckOpenOrdersBinance()
+	opened, allOrders := CheckOpenOrdersBinance()
 
 	switch opened {
 	case 0:
@@ -113,11 +113,43 @@ func ExecuteBuyOrderMITHBNB(ammountToBuy string, priceToBuy string, w *wallet.Wa
 		fmt.Println(chalk.Bold.TextStyle("BUY ORDER EXECUTED!"), chalk.Green)
 
 	case 1:
-		w.Status = "BUY ORDER"
-		w.Ammount = utils.StringToFloat(ammountToBuy)
-		w.LastBuy = utils.StringToFloat(priceToBuy)
 
-		w.WriteInWallet()
+		/*
+			If there is a current order open,
+			check if it's buy or sell order
+		*/
+		for _, op := range allOrders {
+
+			orderType := utils.AnyTypeToString(op.Side)
+
+			if orderType == "SELL" {
+
+				/*
+					If the opened order is a sell one, change the status
+					in our wallet so we can get other functions running
+				*/
+
+				w.Status = "SELL"
+				w.Balance = GetBinanceWalletBNB()
+				w.LastBuy = utils.StringToFloat(priceToBuy)
+				w.Ammount = utils.StringToFloat(ammountToBuy)
+				w.Balance = GetBinanceWalletBNB()
+				w.Timer = 0
+				w.Transactions++
+
+				w.WriteInWallet()
+			} else {
+
+				/*
+					If opened orders are just SELL orders..
+				*/
+				w.Status = "BUY ORDER"
+				w.Ammount = utils.StringToFloat(ammountToBuy)
+				w.LastBuy = utils.StringToFloat(priceToBuy)
+				w.WriteInWallet()
+			}
+		}
+
 	}
 
 }
@@ -139,7 +171,7 @@ func ExecuteSellOrderMITHBNB(ammountToSell string, priceToSell string, w *wallet
 		return
 	}
 
-	openOrders, _ := CheckOpenOrdersBinance()
+	openOrders, allOrders := CheckOpenOrdersBinance()
 
 	switch openOrders {
 	case 0:
@@ -158,11 +190,48 @@ func ExecuteSellOrderMITHBNB(ammountToSell string, priceToSell string, w *wallet
 
 	case 1:
 
-		w.Status = "SELL ORDER"
-		w.Ammount = 0
-		w.LastBuy = utils.StringToFloat(priceToSell)
+		// w.Status = "SELL ORDER"
+		// w.Ammount = 0
+		// w.LastBuy = utils.StringToFloat(priceToSell)
 
-		w.WriteInWallet()
+		// w.WriteInWallet()
+
+		/*
+			If there is a current order open,
+			check if it's buy or sell order
+		*/
+		for _, op := range allOrders {
+
+			orderType := utils.AnyTypeToString(op.Side)
+
+			if orderType == "BUY" {
+
+				/*
+					If the opened order is a sell one, change the status
+					in our wallet so we can get other functions running
+				*/
+
+				w.Status = "BUY"
+				w.Balance = GetBinanceWalletBNB()
+				w.LastSell = utils.StringToFloat(priceToSell)
+				w.Ammount = 0
+				w.Balance = GetBinanceWalletBNB()
+				w.Timer = 0
+				w.Transactions++
+
+				w.WriteInWallet()
+			} else {
+
+				/*
+					If opened orders are just SELL orders..
+				*/
+				w.Status = "SELL ORDER"
+				w.Ammount = utils.StringToFloat(ammountToSell)
+				w.LastBuy = utils.StringToFloat(priceToSell)
+				w.WriteInWallet()
+			}
+		}
+
 	}
 }
 
@@ -188,6 +257,7 @@ func CheckOpenOrdersBinance() (int, []*binance.Order) {
 		log.Println("ORDER Id:", o.OrderID)
 		log.Println("ORDER Status:", o.Side)
 		log.Println("ORDER Price:", o.Price)
+		log.Println("-----------------------")
 		ordersID = append(ordersID, o.OrderID)
 		orderType := utils.AnyTypeToString(o.Side)
 		orderTypes = append(orderTypes, orderType)

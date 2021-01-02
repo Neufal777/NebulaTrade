@@ -168,7 +168,7 @@ func ExecuteMarket(w *wallet.Wallet) {
 	}
 
 	actualStatusString := wallet.GetStatus()
-	opened, _ := exchanges.CheckOpenOrdersBinance()
+	opened, allorders := exchanges.CheckOpenOrdersBinance()
 
 	switch actualStatusString {
 	case "SELL ORDER":
@@ -176,13 +176,47 @@ func ExecuteMarket(w *wallet.Wallet) {
 			w.Status = "BUY"
 			w.WriteInWallet()
 			DecisionMakeBuy(w)
+		} else {
+
+			for _, o := range allorders {
+
+				/*
+					Check if the opened orders are sell or buy
+				*/
+
+				orderType := utils.AnyTypeToString(o.Side)
+
+				if orderType != "SELL" {
+
+					w.Status = "BUY"
+					w.WriteInWallet()
+					DecisionMakeBuy(w)
+				}
+			}
 		}
 	case "BUY ORDER":
 		if opened == 0 {
 			w.Status = "SELL"
+			w.Timer = 0
 			w.WriteInWallet()
 			DecisionMakeSell()
 
+		} else {
+			for _, o := range allorders {
+
+				/*
+					Check if the opened orders are sell or buy
+				*/
+
+				orderType := utils.AnyTypeToString(o.Side)
+
+				if orderType != "BUY" {
+
+					w.Status = "SELL"
+					w.WriteInWallet()
+					DecisionMakeBuy(w)
+				}
+			}
 		}
 	case "BUY":
 		DecisionMakeBuy(w)
