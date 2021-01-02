@@ -17,6 +17,7 @@ type Wallet struct {
 	LastBuy      float64
 	LastSell     float64
 	Transactions int32
+	Timer        int32
 }
 
 //WriteInWallet - updates the information

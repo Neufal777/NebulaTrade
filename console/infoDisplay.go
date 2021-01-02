@@ -24,6 +24,7 @@ func InformationDisplayConsole() {
 
 	fmt.Println(chalk.Bold.TextStyle("Current Price:"), chalk.Bold.TextStyle(latestCurrencyPrice.Price), chalk.Green)
 	fmt.Println(chalk.Bold.TextStyle("Last Buy:"), myWallet.LastBuy, chalk.Green)
+	fmt.Println(chalk.Bold.TextStyle("Last Sell:"), myWallet.LastSell, chalk.Green)
 	fmt.Println(chalk.Bold.TextStyle("Difference to sell:"), currentPriceFloat-myWallet.LastBuy, chalk.Green)
 	fmt.Println(chalk.Bold.TextStyle("Ammount:"), myWallet.Ammount, chalk.Green)
 	fmt.Println(chalk.Bold.TextStyle("Initial Balance:"), myWallet.Balance, chalk.Green)

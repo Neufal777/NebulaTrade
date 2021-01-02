@@ -93,7 +93,7 @@ func ExecuteBuyOrderMITHBNB(ammountToBuy string, priceToBuy string, w *wallet.Wa
 	/*
 		If the order is made successfuly update the wallet
 	*/
-	opened := CheckOpenOrdersBinance()
+	opened, _ := CheckOpenOrdersBinance()
 
 	switch opened {
 	case 0:
@@ -104,6 +104,7 @@ func ExecuteBuyOrderMITHBNB(ammountToBuy string, priceToBuy string, w *wallet.Wa
 		w.LastBuy = utils.StringToFloat(priceToBuy)
 		w.Ammount = utils.StringToFloat(ammountToBuy)
 		w.Balance = GetBinanceWalletBNB()
+		w.Timer = 0
 		w.Transactions++
 
 		//Write the update information in our register
@@ -112,7 +113,10 @@ func ExecuteBuyOrderMITHBNB(ammountToBuy string, priceToBuy string, w *wallet.Wa
 		fmt.Println(chalk.Bold.TextStyle("BUY ORDER EXECUTED!"), chalk.Green)
 
 	case 1:
-		w.Status = "ORDER"
+		w.Status = "BUY ORDER"
+		w.Ammount = utils.StringToFloat(ammountToBuy)
+		w.LastBuy = utils.StringToFloat(priceToBuy)
+
 		w.WriteInWallet()
 	}
 
@@ -135,7 +139,7 @@ func ExecuteSellOrderMITHBNB(ammountToSell string, priceToSell string, w *wallet
 		return
 	}
 
-	openOrders := CheckOpenOrdersBinance()
+	openOrders, _ := CheckOpenOrdersBinance()
 
 	switch openOrders {
 	case 0:
@@ -148,18 +152,22 @@ func ExecuteSellOrderMITHBNB(ammountToSell string, priceToSell string, w *wallet
 		w.Balance = GetBinanceWalletBNB()
 		w.Transactions++
 		w.LastSell = utils.StringToFloat(priceToSell)
-
+		w.Timer = 0
 		w.WriteInWallet()
 		fmt.Println(chalk.Bold.TextStyle("SELL ORDER EXECUTED!"), chalk.Green)
 
 	case 1:
-		w.Status = "ORDER"
+
+		w.Status = "SELL ORDER"
+		w.Ammount = 0
+		w.LastBuy = utils.StringToFloat(priceToSell)
+
 		w.WriteInWallet()
 	}
 }
 
 //CheckOpenOrdersBinance -
-func CheckOpenOrdersBinance() int {
+func CheckOpenOrdersBinance() (int, []*binance.Order) {
 
 	client := binance.NewClient(apiKey, secretKey)
 
@@ -170,7 +178,9 @@ func CheckOpenOrdersBinance() int {
 		fmt.Println(err)
 
 	}
-	fmt.Println(openOrders)
+
+	var ordersID []int64
+	var orderTypes []string
 
 	for _, o := range openOrders {
 
@@ -178,11 +188,30 @@ func CheckOpenOrdersBinance() int {
 		log.Println("ORDER Id:", o.OrderID)
 		log.Println("ORDER Status:", o.Side)
 		log.Println("ORDER Price:", o.Price)
+		ordersID = append(ordersID, o.OrderID)
+		orderType := utils.AnyTypeToString(o.Side)
+		orderTypes = append(orderTypes, orderType)
 	}
 
 	if len(openOrders) >= 1 {
-		return 1
+		return 1, openOrders
 	}
 
-	return 0
+	return 0, nil
+}
+
+//CancelOrderBinance -
+func CancelOrderBinance(orderid int64) {
+
+	client := binance.NewClient(apiKey, secretKey)
+
+	_, err := client.NewCancelOrderService().Symbol(MITHBNB).
+		OrderID(orderid).Do(context.Background())
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	log.Println("Order Cancelled!")
 }
