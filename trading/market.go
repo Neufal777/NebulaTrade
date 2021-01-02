@@ -120,7 +120,6 @@ func DecisionMakeSell() {
 				- Last Sell
 				- Ststus to BUY
 		*/
-		w.Ammount = w.Ammount - 2
 		truncatedAmmountToSell := mathnebula.ToFixed((w.Ammount), 7)
 		ammountStringSell := utils.FloatToString(truncatedAmmountToSell)
 		w.Timer = 0
@@ -146,14 +145,16 @@ func ExecuteMarket(w *wallet.Wallet) {
 		//If we didnt bought anything in X time buy at current price
 
 		orders, allOrders := exchanges.CheckOpenOrdersBinance()
+		ord := exchanges.AllOpenOrdersBinance(allOrders)
 
 		if orders == 1 {
 
-			for _, ot := range allOrders {
+			for _, o := range ord {
 
-				orderType := utils.AnyTypeToString(ot.Side)
-				if orderType == "BUY" {
-					exchanges.CancelOrderBinance(ot.OrderID)
+				if o.Status == "BUY" && o.Symbol == exchanges.MITHBNB {
+
+					//We delete the actual buy order [EXPIRED]
+					exchanges.CancelOrderBinance(o.OrderID)
 					log.Println("Deleted Buy order")
 				}
 			}
@@ -161,7 +162,7 @@ func ExecuteMarket(w *wallet.Wallet) {
 		}
 
 		w.Status = "BUY"
-		w.LastSell = 2.9
+		w.LastSell = 200.0 //
 		w.Timer = 0
 		w.WriteInWallet()
 
@@ -169,30 +170,28 @@ func ExecuteMarket(w *wallet.Wallet) {
 
 	actualStatusString := wallet.GetStatus()
 	opened, allorders := exchanges.CheckOpenOrdersBinance()
+	orders := exchanges.AllOpenOrdersBinance(allorders)
 
 	switch actualStatusString {
 	case "SELL ORDER":
 		if opened == 0 {
 			w.Status = "BUY"
+			w.Timer = 0
 			w.WriteInWallet()
 			DecisionMakeBuy(w)
 		} else {
 
-			for _, o := range allorders {
+			for _, o := range orders {
 
-				/*
-					Check if the opened orders are sell or buy
-				*/
-
-				orderType := utils.AnyTypeToString(o.Side)
-
-				if orderType != "SELL" {
+				if o.Status != "SELL" && o.Symbol != exchanges.MITHBNB {
 
 					w.Status = "BUY"
+					w.Timer = 0
 					w.WriteInWallet()
 					DecisionMakeBuy(w)
 				}
 			}
+
 		}
 	case "BUY ORDER":
 		if opened == 0 {
@@ -202,22 +201,19 @@ func ExecuteMarket(w *wallet.Wallet) {
 			DecisionMakeSell()
 
 		} else {
-			for _, o := range allorders {
 
-				/*
-					Check if the opened orders are sell or buy
-				*/
+			for _, o := range orders {
 
-				orderType := utils.AnyTypeToString(o.Side)
-
-				if orderType != "BUY" {
+				if o.Status != "BUY" && o.Symbol != exchanges.MITHBNB {
 
 					w.Status = "SELL"
+					w.Timer = 0
 					w.WriteInWallet()
-					DecisionMakeBuy(w)
+					DecisionMakeSell()
 				}
 			}
 		}
+
 	case "BUY":
 		DecisionMakeBuy(w)
 	case "SELL":
