@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"strconv"
 )
 
@@ -15,4 +16,9 @@ func StringToFloat(input string) float64 {
 
 	result, _ := strconv.ParseFloat(input, 64)
 	return result
+}
+
+//AnyTypeToString -
+func AnyTypeToString(input interface{}) string {
+	return fmt.Sprintf("%v", input)
 }
