@@ -14,7 +14,9 @@ func main() {
 
 		w := wallet.ReadWallet()
 		w.Balance = exchanges.GetBinanceWalletBNB()
-		w.Timer++
+		if w.Status == "BUY" || w.Status == "BUY ORDER" {
+			w.Timer++
+		}
 		w.WriteInWallet()
 		trading.ExecuteMarket(&w)
 		time.Sleep(1 * time.Second)

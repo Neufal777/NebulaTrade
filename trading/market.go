@@ -15,6 +15,12 @@ import (
 	"github.com/NebulaTrade/wallet"
 )
 
+const (
+	//PROFIT per trans
+	//PROFIT = 0.00004
+	PROFIT = 0.000004
+)
+
 //RandomProfitPerTrans -
 func RandomProfitPerTrans(min, max float64) float64 {
 
@@ -29,7 +35,7 @@ func RandomProfitPerTrans(min, max float64) float64 {
 func DecisionMakeBuy(w *wallet.Wallet) {
 
 	//Check at how much we sold and if the actual price is lower
-	buyActualPrice := exchanges.BinancePrice(exchanges.MITHBNB)
+	buyActualPrice := exchanges.BinancePrice(exchanges.XLMBNB)
 	lastSellFloat := wallet.GetLastSell()
 	lastPriceFloat := utils.StringToFloat(buyActualPrice.Price)
 
@@ -48,8 +54,8 @@ func DecisionMakeBuy(w *wallet.Wallet) {
 	*/
 	console.InformationDisplayConsole()
 
-	//RandomProfitPerTrans(0.000001, 0.000002)
-	if difference >= 0.000001 {
+	//RandomProfitPerTrans(PROFIT, 0.000002)
+	if difference >= PROFIT {
 
 		/*
 			EXECUTE BUY ORDER
@@ -63,7 +69,7 @@ func DecisionMakeBuy(w *wallet.Wallet) {
 		ammountString := utils.FloatToString(truncateAmmountToBuy)
 
 		//Execute Buy
-		exchanges.ExecuteBuyOrderMITHBNB(ammountString[:len(ammountString)-13], buyActualPrice.Price, w)
+		exchanges.ExecuteBuyOrderXLMBNB(ammountString[:len(ammountString)-13], buyActualPrice.Price, w)
 
 		//we reset the counter
 		w.Timer = 0
@@ -93,7 +99,7 @@ func DecisionMakeSell() {
 	*/
 
 	w := wallet.ReadWallet()
-	data := exchanges.BinancePrice(exchanges.MITHBNB)
+	data := exchanges.BinancePrice(exchanges.XLMBNB)
 
 	currentPriceFloat, _ := strconv.ParseFloat(data.Price, 32)
 	/*
@@ -108,8 +114,8 @@ func DecisionMakeSell() {
 	fmt.Println(chalk.Bold.TextStyle("Waiting to sell.."), chalk.Green)
 	console.InformationDisplayConsole()
 
-	//RandomProfitPerTrans(0.000001, 0.000002)
-	if differenceToSell >= 0.000001 {
+	//RandomProfitPerTrans(PROFIT, 0.000002)
+	if differenceToSell >= PROFIT {
 
 		/*
 			EXECUTE SELL ORDER
@@ -123,7 +129,7 @@ func DecisionMakeSell() {
 		truncatedAmmountToSell := mathnebula.ToFixed((w.Ammount), 7)
 		ammountStringSell := utils.FloatToString(truncatedAmmountToSell)
 		w.Timer = 0
-		exchanges.ExecuteSellOrderMITHBNB(ammountStringSell[:len(ammountStringSell)-13], data.Price, &w)
+		exchanges.ExecuteSellOrderXLMBNB(ammountStringSell[:len(ammountStringSell)-13], data.Price, &w)
 
 		w.WriteInWallet()
 
@@ -140,7 +146,7 @@ func ExecuteMarket(w *wallet.Wallet) {
 		Check the status (BUY OR SELL)
 	*/
 
-	if w.Timer >= 2400 {
+	if w.Timer >= 200 {
 
 		//If we didnt bought anything in X time buy at current price
 
@@ -151,7 +157,7 @@ func ExecuteMarket(w *wallet.Wallet) {
 
 			for _, o := range ord {
 
-				if o.Status == "BUY" && o.Symbol == exchanges.MITHBNB {
+				if o.Status == "BUY" && o.Symbol == exchanges.XLMBNB {
 
 					//We delete the actual buy order [EXPIRED]
 					exchanges.CancelOrderBinance(o.OrderID)
@@ -183,7 +189,7 @@ func ExecuteMarket(w *wallet.Wallet) {
 
 			for _, o := range orders {
 
-				if o.Status != "SELL" && o.Symbol != exchanges.MITHBNB {
+				if o.Status != "SELL" && o.Symbol != exchanges.XLMBNB {
 
 					w.Status = "BUY"
 					w.Timer = 0
@@ -204,7 +210,7 @@ func ExecuteMarket(w *wallet.Wallet) {
 
 			for _, o := range orders {
 
-				if o.Status != "BUY" && o.Symbol != exchanges.MITHBNB {
+				if o.Status != "BUY" && o.Symbol != exchanges.XLMBNB {
 
 					w.Status = "SELL"
 					w.Timer = 0
