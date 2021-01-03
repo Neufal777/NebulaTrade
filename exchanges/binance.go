@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/NebulaTrade/binanceaccount"
 	"github.com/NebulaTrade/utils"
@@ -32,8 +33,8 @@ type Order struct {
 }
 
 const (
-	//MITHBNB exchange from binance
 	MITHBNB = "MITHBNB"
+	XLMBNB  = "XLMBNB"
 	//XRPBNB  = "XRPBNB"
 )
 
@@ -73,8 +74,6 @@ func BinancePrice(exchange string) BinanceCoin {
 //GetBinanceWalletBNB -
 func GetBinanceWalletBNB() float64 {
 
-	//futuresClient := binance.NewFuturesClient(apiKey, secretKey)   // USDT-M Futures
-	//deliveryClient := binance.NewDeliveryClient(apiKey, secretKey) // Coin-M Futures
 	client := binance.NewClient(apiKey, secretKey)
 
 	res, err := client.NewGetAccountService().Do(context.Background())
@@ -87,11 +86,26 @@ func GetBinanceWalletBNB() float64 {
 	return binanceWalletFloat
 }
 
-//ExecuteBuyOrderMITHBNB -
-func ExecuteBuyOrderMITHBNB(ammountToBuy string, priceToBuy string, w *wallet.Wallet) {
+//GetBinanceWalletXLM -
+func GetBinanceWalletXLM() float64 {
 	client := binance.NewClient(apiKey, secretKey)
 
-	_, err := client.NewCreateOrderService().Symbol(MITHBNB).
+	res, err := client.NewGetAccountService().Do(context.Background())
+	if err != nil {
+		fmt.Println(err)
+
+	}
+
+	binanceWalletFloat := utils.StringToFloat(res.Balances[88].Free)
+
+	return binanceWalletFloat
+}
+
+//ExecuteBuyOrderXLMBNB -
+func ExecuteBuyOrderXLMBNB(ammountToBuy string, priceToBuy string, w *wallet.Wallet) {
+	client := binance.NewClient(apiKey, secretKey)
+
+	_, err := client.NewCreateOrderService().Symbol(XLMBNB).
 		Side(binance.SideTypeBuy).Type(binance.OrderTypeLimit).
 		TimeInForce(binance.TimeInForceTypeGTC).Quantity(ammountToBuy).
 		Price(priceToBuy).Do(context.Background())
@@ -101,6 +115,7 @@ func ExecuteBuyOrderMITHBNB(ammountToBuy string, priceToBuy string, w *wallet.Wa
 		return
 	}
 
+	time.Sleep(2 * time.Second)
 	/*
 		If the order is made successfuly update the wallet
 	*/
@@ -129,7 +144,7 @@ func ExecuteBuyOrderMITHBNB(ammountToBuy string, priceToBuy string, w *wallet.Wa
 
 		for _, ord := range orders {
 
-			if ord.Status == "BUY" && ord.Symbol == MITHBNB {
+			if ord.Status == "BUY" && ord.Symbol == XLMBNB {
 
 				//That means we still have open order for buying
 				w.Status = "BUY ORDER"
@@ -162,12 +177,12 @@ func ExecuteBuyOrderMITHBNB(ammountToBuy string, priceToBuy string, w *wallet.Wa
 
 }
 
-//ExecuteSellOrderMITHBNB -
-func ExecuteSellOrderMITHBNB(ammountToSell string, priceToSell string, w *wallet.Wallet) {
+//ExecuteSellOrderXLMBNB -
+func ExecuteSellOrderXLMBNB(ammountToSell string, priceToSell string, w *wallet.Wallet) {
 
 	client := binance.NewClient(apiKey, secretKey)
 
-	_, err := client.NewCreateOrderService().Symbol(MITHBNB).
+	_, err := client.NewCreateOrderService().Symbol(XLMBNB).
 		Side(binance.SideTypeSell).Type(binance.OrderTypeLimit).
 		TimeInForce(binance.TimeInForceTypeGTC).Quantity(ammountToSell).
 		Price(priceToSell).Do(context.Background())
@@ -179,6 +194,7 @@ func ExecuteSellOrderMITHBNB(ammountToSell string, priceToSell string, w *wallet
 		fmt.Println(err)
 		return
 	}
+	time.Sleep(2 * time.Second)
 
 	openOrders, allOrders := CheckOpenOrdersBinance()
 
@@ -192,6 +208,7 @@ func ExecuteSellOrderMITHBNB(ammountToSell string, priceToSell string, w *wallet
 		w.Status = "BUY"
 		w.Balance = GetBinanceWalletBNB()
 		w.Transactions++
+		w.Ammount = 0
 		w.LastSell = utils.StringToFloat(priceToSell)
 		w.Timer = 0
 		w.WriteInWallet()
@@ -204,7 +221,7 @@ func ExecuteSellOrderMITHBNB(ammountToSell string, priceToSell string, w *wallet
 
 		for _, ord := range orders {
 
-			if ord.Status == "SELL" && ord.Symbol == MITHBNB {
+			if ord.Status == "SELL" && ord.Symbol == XLMBNB {
 
 				//That means we still have open order for selling
 				w.Status = "SELL ORDER"
@@ -221,7 +238,7 @@ func ExecuteSellOrderMITHBNB(ammountToSell string, priceToSell string, w *wallet
 				w.Status = "BUY"
 				w.Balance = GetBinanceWalletBNB()
 				w.LastSell = utils.StringToFloat(priceToSell)
-				w.Ammount = utils.StringToFloat(ammountToSell)
+				w.Ammount = 0
 				w.Balance = GetBinanceWalletBNB()
 				w.Timer = 0
 				w.Transactions++
@@ -242,7 +259,7 @@ func CheckOpenOrdersBinance() (int, []*binance.Order) {
 	client := binance.NewClient(apiKey, secretKey)
 
 	//check open orders from the user
-	openOrders, err := client.NewListOpenOrdersService().Symbol(MITHBNB).
+	openOrders, err := client.NewListOpenOrdersService().Symbol(XLMBNB).
 		Do(context.Background())
 	if err != nil {
 		fmt.Println(err)
@@ -299,7 +316,7 @@ func CancelOrderBinance(orderid int64) {
 
 	client := binance.NewClient(apiKey, secretKey)
 
-	_, err := client.NewCancelOrderService().Symbol(MITHBNB).
+	_, err := client.NewCancelOrderService().Symbol(XLMBNB).
 		OrderID(orderid).Do(context.Background())
 
 	if err != nil {

@@ -15,7 +15,7 @@ func InformationDisplayConsole() {
 	myWallet := wallet.ReadWallet()
 
 	//get actual currency price
-	latestCurrencyPrice := exchanges.BinancePrice(exchanges.MITHBNB)
+	latestCurrencyPrice := exchanges.BinancePrice(exchanges.XLMBNB)
 	currentPriceFloat := utils.StringToFloat(latestCurrencyPrice.Price)
 
 	/*

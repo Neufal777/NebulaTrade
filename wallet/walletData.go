@@ -85,7 +85,7 @@ func GetLastBuy() float64 {
 	return w.LastBuy
 }
 
-//GetStatus - gets the price of your last buy
+//GetStatus - gets the status of your last buy
 func GetStatus() string {
 
 	w := ReadWallet()
