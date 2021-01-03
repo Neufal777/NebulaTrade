@@ -3,6 +3,7 @@ package console
 import (
 	"fmt"
 
+	"github.com/NebulaTrade/config"
 	"github.com/NebulaTrade/exchanges"
 	"github.com/NebulaTrade/utils"
 	"github.com/NebulaTrade/wallet"
@@ -15,7 +16,7 @@ func InformationDisplayConsole() {
 	myWallet := wallet.ReadWallet()
 
 	//get actual currency price
-	latestCurrencyPrice := exchanges.BinancePrice(exchanges.XLMBNB)
+	latestCurrencyPrice := exchanges.BinancePrice(config.CURRENCY)
 	currentPriceFloat := utils.StringToFloat(latestCurrencyPrice.Price)
 
 	/*

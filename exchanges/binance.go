@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/NebulaTrade/binanceaccount"
+	"github.com/NebulaTrade/config"
 	"github.com/NebulaTrade/utils"
 	"github.com/NebulaTrade/wallet"
 	"github.com/adshao/go-binance/v2"
@@ -31,12 +32,6 @@ type Order struct {
 	Status        string //BUY OR SELL ORDER
 	Type          string //LIMIT, STOP, ETC
 }
-
-const (
-	MITHBNB = "MITHBNB"
-	XLMBNB  = "XLMBNB"
-	//XRPBNB  = "XRPBNB"
-)
 
 //BinanceCoin -
 type BinanceCoin struct {
@@ -101,11 +96,11 @@ func GetBinanceWalletXLM() float64 {
 	return binanceWalletFloat
 }
 
-//ExecuteBuyOrderXLMBNB -
-func ExecuteBuyOrderXLMBNB(ammountToBuy string, priceToBuy string, w *wallet.Wallet) {
+//ExecuteBuyOrderCURRENCY -
+func ExecuteBuyOrderCURRENCY(ammountToBuy string, priceToBuy string, w *wallet.Wallet) {
 	client := binance.NewClient(apiKey, secretKey)
 
-	_, err := client.NewCreateOrderService().Symbol(XLMBNB).
+	_, err := client.NewCreateOrderService().Symbol(config.CURRENCY).
 		Side(binance.SideTypeBuy).Type(binance.OrderTypeLimit).
 		TimeInForce(binance.TimeInForceTypeGTC).Quantity(ammountToBuy).
 		Price(priceToBuy).Do(context.Background())
@@ -144,7 +139,7 @@ func ExecuteBuyOrderXLMBNB(ammountToBuy string, priceToBuy string, w *wallet.Wal
 
 		for _, ord := range orders {
 
-			if ord.Status == "BUY" && ord.Symbol == XLMBNB {
+			if ord.Status == "BUY" && ord.Symbol == config.CURRENCY {
 
 				//That means we still have open order for buying
 				w.Status = "BUY ORDER"
@@ -177,12 +172,12 @@ func ExecuteBuyOrderXLMBNB(ammountToBuy string, priceToBuy string, w *wallet.Wal
 
 }
 
-//ExecuteSellOrderXLMBNB -
-func ExecuteSellOrderXLMBNB(ammountToSell string, priceToSell string, w *wallet.Wallet) {
+//ExecuteSellOrderCURRENCY -
+func ExecuteSellOrderCURRENCY(ammountToSell string, priceToSell string, w *wallet.Wallet) {
 
 	client := binance.NewClient(apiKey, secretKey)
 
-	_, err := client.NewCreateOrderService().Symbol(XLMBNB).
+	_, err := client.NewCreateOrderService().Symbol(config.CURRENCY).
 		Side(binance.SideTypeSell).Type(binance.OrderTypeLimit).
 		TimeInForce(binance.TimeInForceTypeGTC).Quantity(ammountToSell).
 		Price(priceToSell).Do(context.Background())
@@ -221,7 +216,7 @@ func ExecuteSellOrderXLMBNB(ammountToSell string, priceToSell string, w *wallet.
 
 		for _, ord := range orders {
 
-			if ord.Status == "SELL" && ord.Symbol == XLMBNB {
+			if ord.Status == "SELL" && ord.Symbol == config.CURRENCY {
 
 				//That means we still have open order for selling
 				w.Status = "SELL ORDER"
@@ -259,7 +254,7 @@ func CheckOpenOrdersBinance() (int, []*binance.Order) {
 	client := binance.NewClient(apiKey, secretKey)
 
 	//check open orders from the user
-	openOrders, err := client.NewListOpenOrdersService().Symbol(XLMBNB).
+	openOrders, err := client.NewListOpenOrdersService().Symbol(config.CURRENCY).
 		Do(context.Background())
 	if err != nil {
 		fmt.Println(err)
@@ -316,7 +311,7 @@ func CancelOrderBinance(orderid int64) {
 
 	client := binance.NewClient(apiKey, secretKey)
 
-	_, err := client.NewCancelOrderService().Symbol(XLMBNB).
+	_, err := client.NewCancelOrderService().Symbol(config.CURRENCY).
 		OrderID(orderid).Do(context.Background())
 
 	if err != nil {
