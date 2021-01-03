@@ -6,11 +6,12 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+
+	"github.com/NebulaTrade/config"
 )
 
 //Wallet - wallet of each user
 type Wallet struct {
-	Name         string
 	Balance      float64
 	Ammount      float64
 	Status       string
@@ -28,14 +29,14 @@ func (wallet *Wallet) WriteInWallet() {
 	if err != nil {
 		log.Panic(err)
 	}
-	_ = ioutil.WriteFile("wallet.json", file, 0644)
+	_ = ioutil.WriteFile(config.CURRENCY+".json", file, 0644)
 }
 
 //ReadWallet - gets all the information from the wallet and returns a wallet struct
 func ReadWallet() Wallet {
 
 	// Open our jsonFile
-	jsonFile, err := os.Open("wallet.json")
+	jsonFile, err := os.Open(config.CURRENCY + ".json")
 
 	if err != nil {
 		fmt.Println(err)

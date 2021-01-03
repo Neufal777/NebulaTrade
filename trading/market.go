@@ -141,7 +141,7 @@ func ExecuteMarket(w *wallet.Wallet) {
 		Check the status (BUY OR SELL)
 	*/
 
-	if w.Timer >= 1600 {
+	if w.Timer >= config.COUNTER {
 
 		//If we didnt bought anything in X time buy at current price
 
