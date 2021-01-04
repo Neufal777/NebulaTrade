@@ -12,6 +12,7 @@ import (
 
 //Wallet - wallet of each user
 type Wallet struct {
+	Symbol       string
 	Balance      float64
 	Ammount      float64
 	Status       string

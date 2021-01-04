@@ -15,4 +15,4 @@
 # vendor/
 
 NebulaTrade
-wallet.json
+*.json
