@@ -1,9 +1,10 @@
 {
- "Balance": 0.68573044,
- "Ammount": 0,
+ "Symbol": "XLMBNB",
+ "Balance": 4.10693735,
+ "Ammount": 1058,
  "Status": "BUY",
- "LastBuy": 0.003274,
- "LastSell": 0.003305,
- "Transactions": 5,
- "Timer": 26
+ "LastBuy": 0.003872,
+ "LastSell": 0.9,
+ "Transactions": 0,
+ "Timer": 0
 }

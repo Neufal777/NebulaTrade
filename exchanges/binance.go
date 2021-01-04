@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/NebulaTrade/binanceaccount"
@@ -81,8 +82,12 @@ func GetBinanceWalletBNB() float64 {
 	return binanceWalletFloat
 }
 
-//GetBinanceWalletXLM -
-func GetBinanceWalletXLM() float64 {
+//GetBinanceWalletCurrency - get current ammount of that currency
+func GetBinanceWalletCurrency(currency string) float64 {
+
+	//clean currency
+	currency = strings.Replace(currency, "BNB", "", -1)
+	log.Println(currency)
 	client := binance.NewClient(apiKey, secretKey)
 
 	res, err := client.NewGetAccountService().Do(context.Background())
@@ -91,9 +96,19 @@ func GetBinanceWalletXLM() float64 {
 
 	}
 
-	binanceWalletFloat := utils.StringToFloat(res.Balances[88].Free)
+	count := 0
 
-	return binanceWalletFloat
+	for _, x := range res.Balances {
+
+		if x.Asset == currency {
+			binanceWalletFloat := utils.StringToFloat(res.Balances[count].Free)
+			return binanceWalletFloat
+		} else {
+			count++
+		}
+	}
+
+	return 0
 }
 
 //ExecuteBuyOrderCURRENCY -
@@ -123,7 +138,7 @@ func ExecuteBuyOrderCURRENCY(ammountToBuy string, priceToBuy string, w *wallet.W
 		w.Status = "SELL"
 		w.Balance = GetBinanceWalletBNB()
 		w.LastBuy = utils.StringToFloat(priceToBuy)
-		w.Ammount = utils.StringToFloat(ammountToBuy)
+		w.Ammount = GetBinanceWalletCurrency(w.Symbol)
 		w.Balance = GetBinanceWalletBNB()
 		w.Timer = 0
 		w.Transactions++
@@ -156,7 +171,7 @@ func ExecuteBuyOrderCURRENCY(ammountToBuy string, priceToBuy string, w *wallet.W
 				w.Status = "SELL"
 				w.Balance = GetBinanceWalletBNB()
 				w.LastBuy = utils.StringToFloat(priceToBuy)
-				w.Ammount = utils.StringToFloat(ammountToBuy)
+				w.Ammount = GetBinanceWalletCurrency(w.Symbol)
 				w.Balance = GetBinanceWalletBNB()
 				w.Timer = 0
 				w.Transactions++
