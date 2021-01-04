@@ -221,6 +221,8 @@ func ExecuteMarket(w *wallet.Wallet) {
 		availablebnb := exchanges.GetBinanceWalletBNB()
 		if availablebnb >= 0.02 {
 			DecisionMakeBuy(w)
+		} else {
+			log.Println("No funds available")
 		}
 	case "SELL":
 		DecisionMakeSell()

@@ -13,7 +13,7 @@ func main() {
 
 	for {
 
-		w := wallet.ReadWallet()
+		w := wallet.ReadWallet(currency)
 		w.Balance = exchanges.GetBinanceWalletBNB()
 		w.Symbol = config.CURRENCY
 		if w.Status == "BUY" || w.Status == "BUY ORDER" {
