@@ -160,7 +160,7 @@ func ExecuteBuyOrderCURRENCY(ammountToBuy string, priceToBuy string, w *wallet.W
 				w.Status = "BUY ORDER"
 				w.Balance = GetBinanceWalletBNB()
 				w.LastBuy = utils.StringToFloat(priceToBuy)
-				w.Ammount = utils.StringToFloat(ammountToBuy)
+				w.Ammount = GetBinanceWalletCurrency(w.Symbol)
 				w.Timer = 0
 				w.Transactions++
 				w.WriteInWallet()
@@ -237,7 +237,7 @@ func ExecuteSellOrderCURRENCY(ammountToSell string, priceToSell string, w *walle
 				w.Status = "SELL ORDER"
 				w.Balance = GetBinanceWalletBNB()
 				w.LastSell = utils.StringToFloat(priceToSell)
-				w.Ammount = utils.StringToFloat(ammountToSell)
+				w.Ammount = GetBinanceWalletCurrency(w.Symbol)
 				w.Timer = 0
 				w.Transactions++
 				w.WriteInWallet()
@@ -282,6 +282,7 @@ func CheckOpenOrdersBinance() (int, []*binance.Order) {
 	for _, o := range openOrders {
 
 		//Show active orders
+		log.Println("-----------------------")
 		log.Println("ORDER Id:", o.OrderID)
 		log.Println("ORDER Status:", o.Side)
 		log.Println("ORDER Price:", o.Price)

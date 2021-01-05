@@ -5,9 +5,8 @@ package config
 	- PROFIT PER TRANS && CURRENCY
 */
 
-const (
-	PROFIT      = 0.00003
-	CURRENCY    = "XLMBNB"
-	COUNTER     = 1600 //how much we wait to buy new stock [in seconds] #26 minutes
-	TRADINGWITH = "BNB"
+var (
+	PROFIT   = 0.000001
+	CURRENCY = "CURRENCY"
+	COUNTER  = 100 //how much we wait to buy new stock [in seconds] #26 minutes
 )

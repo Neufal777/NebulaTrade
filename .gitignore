@@ -2,6 +2,7 @@
 *.exe
 *.exe~
 *.dll
+*.json
 *.so
 *.dylib
 
@@ -15,4 +16,3 @@
 # vendor/
 
 NebulaTrade
-*.json
