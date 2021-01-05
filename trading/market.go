@@ -121,7 +121,8 @@ func DecisionMakeSell() {
 				- Last Sell
 				- Ststus to BUY
 		*/
-		truncatedAmmountToSell := mathnebula.ToFixed((w.Ammount), 7) - 0.5
+		truncatedAmmountToSell := mathnebula.ToFixed(
+			+(exchanges.GetBinanceWalletCurrency(w.Symbol)), 7) - 0.5
 		ammountStringSell := utils.FloatToString(truncatedAmmountToSell)
 		w.Timer = 0
 		exchanges.ExecuteSellOrderCURRENCY(ammountStringSell[:len(ammountStringSell)-13], data.Price, &w)

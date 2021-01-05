@@ -14,12 +14,16 @@ import (
 type Wallet struct {
 	Symbol       string
 	Balance      float64
+	Available    float64
 	Ammount      float64
 	Status       string
 	LastBuy      float64
 	LastSell     float64
 	Transactions int32
-	Timer        int32
+	Timer        int
+	Limit        float64
+	Active       int
+	Profit       float64
 }
 
 //WriteInWallet - updates the information
