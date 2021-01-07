@@ -56,7 +56,7 @@ func DecisionMakeBuy(w *wallet.Wallet) {
 			EXECUTE BUY ORDER
 		*/
 
-		currentWallet := exchanges.GetBinanceWalletBNB() //- 0.01646
+		currentWallet := w.Available //- 0.01646
 		ammountToBuy := currentWallet / lastPriceFloat
 
 		truncateAmmountToBuy := mathnebula.ToFixed((ammountToBuy), 7)

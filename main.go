@@ -54,7 +54,7 @@ func main() {
 		}
 		w.WriteInWallet()
 		trading.ExecuteMarket(&w)
-		time.Sleep(1 * time.Second)
+		time.Sleep(2 * time.Second)
 	}
 
 }
