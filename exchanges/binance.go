@@ -136,10 +136,9 @@ func ExecuteBuyOrderCURRENCY(ammountToBuy string, priceToBuy string, w *wallet.W
 
 		//If there is no open orders
 		w.Status = "SELL"
-		w.Balance = GetBinanceWalletBNB()
+		w.Balance = w.Available
 		w.LastBuy = utils.StringToFloat(priceToBuy)
 		w.Ammount = GetBinanceWalletCurrency(w.Symbol)
-		w.Balance = GetBinanceWalletBNB()
 		w.Timer = 0
 		w.Transactions++
 
@@ -158,7 +157,7 @@ func ExecuteBuyOrderCURRENCY(ammountToBuy string, priceToBuy string, w *wallet.W
 
 				//That means we still have open order for buying
 				w.Status = "BUY ORDER"
-				w.Balance = GetBinanceWalletBNB()
+				w.Balance = w.Available
 				w.LastBuy = utils.StringToFloat(priceToBuy)
 				w.Ammount = GetBinanceWalletCurrency(w.Symbol)
 				w.Timer = 0
@@ -169,10 +168,9 @@ func ExecuteBuyOrderCURRENCY(ammountToBuy string, priceToBuy string, w *wallet.W
 
 				//If there is no open orders for specific Coin and status
 				w.Status = "SELL"
-				w.Balance = GetBinanceWalletBNB()
 				w.LastBuy = utils.StringToFloat(priceToBuy)
 				w.Ammount = GetBinanceWalletCurrency(w.Symbol)
-				w.Balance = GetBinanceWalletBNB()
+				w.Balance = w.Available
 				w.Timer = 0
 				w.Transactions++
 
@@ -216,7 +214,7 @@ func ExecuteSellOrderCURRENCY(ammountToSell string, priceToSell string, w *walle
 		*/
 
 		w.Status = "BUY"
-		w.Balance = GetBinanceWalletBNB()
+		w.Balance = w.Available
 		w.Transactions++
 		w.Ammount = 0
 		w.LastSell = utils.StringToFloat(priceToSell)
@@ -235,7 +233,7 @@ func ExecuteSellOrderCURRENCY(ammountToSell string, priceToSell string, w *walle
 
 				//That means we still have open order for selling
 				w.Status = "SELL ORDER"
-				w.Balance = GetBinanceWalletBNB()
+				w.Balance = w.Available
 				w.LastSell = utils.StringToFloat(priceToSell)
 				w.Ammount = GetBinanceWalletCurrency(w.Symbol)
 				w.Timer = 0
@@ -246,10 +244,9 @@ func ExecuteSellOrderCURRENCY(ammountToSell string, priceToSell string, w *walle
 
 				//If there is no open orders for specific Coin and status
 				w.Status = "BUY"
-				w.Balance = GetBinanceWalletBNB()
 				w.LastSell = utils.StringToFloat(priceToSell)
 				w.Ammount = 0
-				w.Balance = GetBinanceWalletBNB()
+				w.Balance = w.Available
 				w.Timer = 0
 				w.Transactions++
 
