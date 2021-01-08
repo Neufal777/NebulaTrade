@@ -21,6 +21,7 @@ import (
 var (
 	apiKey    = binanceaccount.APIKEY
 	secretKey = binanceaccount.APISECRET
+	client    = binance.NewClient(apiKey, secretKey)
 )
 
 //Order - defines struct of an order
@@ -70,8 +71,6 @@ func BinancePrice(exchange string) BinanceCoin {
 //GetBinanceWalletBNB -
 func GetBinanceWalletBNB() float64 {
 
-	client := binance.NewClient(apiKey, secretKey)
-
 	res, err := client.NewGetAccountService().Do(context.Background())
 	if err != nil {
 		fmt.Println(err)
@@ -88,7 +87,6 @@ func GetBinanceWalletCurrency(currency string) float64 {
 	//clean currency
 	currency = strings.Replace(currency, "BNB", "", -1)
 	log.Println(currency)
-	client := binance.NewClient(apiKey, secretKey)
 
 	res, err := client.NewGetAccountService().Do(context.Background())
 	if err != nil {
@@ -113,7 +111,6 @@ func GetBinanceWalletCurrency(currency string) float64 {
 
 //ExecuteBuyOrderCURRENCY -
 func ExecuteBuyOrderCURRENCY(ammountToBuy string, priceToBuy string, w *wallet.Wallet) {
-	client := binance.NewClient(apiKey, secretKey)
 
 	_, err := client.NewCreateOrderService().Symbol(config.CURRENCY).
 		Side(binance.SideTypeBuy).Type(binance.OrderTypeLimit).
@@ -188,8 +185,6 @@ func ExecuteBuyOrderCURRENCY(ammountToBuy string, priceToBuy string, w *wallet.W
 //ExecuteSellOrderCURRENCY -
 func ExecuteSellOrderCURRENCY(ammountToSell string, priceToSell string, w *wallet.Wallet) {
 
-	client := binance.NewClient(apiKey, secretKey)
-
 	_, err := client.NewCreateOrderService().Symbol(config.CURRENCY).
 		Side(binance.SideTypeSell).Type(binance.OrderTypeLimit).
 		TimeInForce(binance.TimeInForceTypeGTC).Quantity(ammountToSell).
@@ -263,8 +258,6 @@ func ExecuteSellOrderCURRENCY(ammountToSell string, priceToSell string, w *walle
 //CheckOpenOrdersBinance -
 func CheckOpenOrdersBinance() (int, []*binance.Order) {
 
-	client := binance.NewClient(apiKey, secretKey)
-
 	//check open orders from the user
 	openOrders, err := client.NewListOpenOrdersService().Symbol(config.CURRENCY).
 		Do(context.Background())
@@ -321,8 +314,6 @@ func AllOpenOrdersBinance(allOrders []*binance.Order) []Order {
 
 //CancelOrderBinance -
 func CancelOrderBinance(orderid int64) {
-
-	client := binance.NewClient(apiKey, secretKey)
 
 	_, err := client.NewCancelOrderService().Symbol(config.CURRENCY).
 		OrderID(orderid).Do(context.Background())
