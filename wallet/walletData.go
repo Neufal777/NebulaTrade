@@ -10,6 +10,18 @@ import (
 	"github.com/NebulaTrade/config"
 )
 
+//Order - defines struct of an order
+type Order struct {
+	Symbol        string
+	OrderID       int64
+	ClientOrderID string
+	Price         string
+	Ammount       string
+	Status        string //BUY OR SELL ORDER
+	Type          string //LIMIT, STOP, ETC
+	Active        int
+}
+
 //Wallet - wallet of each user
 type Wallet struct {
 	Symbol       string
@@ -22,8 +34,9 @@ type Wallet struct {
 	Transactions int32
 	Timer        int
 	Limit        float64
-	Active       int
 	Profit       float64
+	OrdNum       int
+	Orders       []Order
 }
 
 //WriteInWallet - updates the information

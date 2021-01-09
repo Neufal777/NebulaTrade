@@ -4,9 +4,11 @@ import (
 	"log"
 	"time"
 
+	"github.com/NebulaTrade/config"
 	"github.com/NebulaTrade/exchanges"
 	"github.com/NebulaTrade/mathnebula"
 	"github.com/NebulaTrade/utils"
+	"github.com/NebulaTrade/wallet"
 )
 
 //BeforeBuyingCrypto - before buying X crypto
@@ -32,4 +34,30 @@ func BeforeBuyingCrypto(currency string) {
 	priceToBuy := mathnebula.ToFixed(total/30, 8)
 
 	log.Println(priceToBuy)
+}
+
+//RecurrentBuy -
+func RecurrentBuy() {
+
+	/*
+		if the status=="BUY"
+		 - check last buy difference
+		 - if current price is lower, new buy
+	*/
+
+	w := wallet.ReadWallet()
+	last := w.LastBuy
+	current := exchanges.BinancePrice(config.CURRENCY)
+
+	diff := last - utils.StringToFloat(current.Price)
+
+	if diff >= config.PROFIT {
+
+		/*
+			Buy more assets
+		*/
+
+		ammountToBuy := w.Available / utils.StringToFloat(current.Price)
+		exchanges.ExecuteBuyOrderCURRENCY(utils.AnyTypeToString(ammountToBuy), current.Price, &w)
+	}
 }

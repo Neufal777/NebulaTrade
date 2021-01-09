@@ -1,10 +1,6 @@
 package main
 
-import (
-	"log"
-
-	"github.com/NebulaTrade/mathnebula"
-)
+import "log"
 
 func main() {
 
@@ -37,7 +33,6 @@ func main() {
 	// w.Status = "BUY"
 	// w.Available = BinanceWallet / limit
 	// w.Balance = BinanceWallet / limit
-	// w.Active = 1
 	// w.Profit = config.PROFIT
 	// w.WriteInWallet()
 
@@ -54,5 +49,13 @@ func main() {
 	// }
 
 	//trading.BeforeBuyingCrypto("XRPBNB")
-	log.Println(mathnebula.PercentOf(0.000578, 5))
+	// config.CURRENCY = "XLMBNB"
+	// w := wallet.ReadWallet()
+	// exchanges.ExecuteBuyOrderCURRENCY("483", "0.0022", &w)
+
+	current := 0.00278
+	lastBuy := 0.00325
+
+	log.Println(lastBuy - current)
+
 }

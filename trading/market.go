@@ -32,6 +32,7 @@ func DecisionMakeBuy(w *wallet.Wallet) {
 	//Check at how much we sold and if the actual price is lower
 	buyActualPrice := exchanges.BinancePrice(config.CURRENCY)
 	lastSellFloat := wallet.GetLastSell()
+	//lastBuyfloat := w.LastBuy
 	lastPriceFloat := utils.StringToFloat(buyActualPrice.Price)
 
 	/*
