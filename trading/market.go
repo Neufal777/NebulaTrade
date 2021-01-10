@@ -59,6 +59,7 @@ func DecisionMakeBuy(w *wallet.Wallet) {
 		exchanges.ExecuteBuyOrderCURRENCY(ammountString[:len(ammountString)-13], utils.AnyTypeToString(lastPriceFloat), w)
 
 		w.Timer = 0
+		w.FirstBuy = lastPriceFloat
 		w.Status = "BUY MORE"
 		w.WriteInWallet()
 
@@ -125,33 +126,34 @@ func ExecuteMarket(w *wallet.Wallet) {
 		Check the status (BUY OR SELL)
 	*/
 
-	// if w.Timer >= config.COUNTER {
+	if w.Timer >= config.COUNTER {
 
-	// 	//If we didnt bought anything in X time buy at current price
+		//If we didnt bought anything in X time buy at current price
 
-	// 	orders, allOrders := exchanges.CheckOpenOrdersBinance()
-	// 	ord := exchanges.AllOpenOrdersBinance(allOrders)
+		orders, allOrders := exchanges.CheckOpenOrdersBinance()
+		ord := exchanges.AllOpenOrdersBinance(allOrders)
 
-	// 	if orders == 1 {
+		if orders == 1 {
 
-	// 		for _, o := range ord {
+			for _, o := range ord {
 
-	// 			if o.Status == "BUY" && o.Symbol == config.CURRENCY {
+				if o.Status == "BUY" && o.Symbol == config.CURRENCY {
 
-	// 				//We delete the actual buy order [EXPIRED]
-	// 				exchanges.CancelOrderBinance(o.OrderID)
-	// 				log.Println("Deleted Buy order")
-	// 			}
-	// 		}
+					//We delete the actual buy order [EXPIRED]
+					exchanges.CancelOrderBinance(o.OrderID)
+					log.Println("Deleted Buy orders")
+				}
+			}
 
-	// 	}
+		}
 
-	// 	w.Status = "BUY"
-	// 	w.LastSell = 200.0 //
-	// 	w.Timer = 0
-	// 	w.WriteInWallet()
+		w.Status = "BUY"
+		w.LastSell = 200.0 //
+		w.Timer = 0
+		w.OrdNum = 0
+		w.WriteInWallet()
 
-	// }
+	}
 
 	actualStatusString := wallet.GetStatus()
 	//opened, allorders := exchanges.CheckOpenOrdersBinance()

@@ -64,6 +64,7 @@ func RecurrentBuy() {
 	} else {
 
 		log.Println("waiting for price to drop")
+		SellingPositions()
 	}
 }
 
@@ -106,6 +107,8 @@ func SellingPositions() {
 
 				exchanges.ExecuteSellOrderCURRENCY(ammountToSell[:len(ammountToSell)-9], currentPrice.Price, &w)
 				//time.Sleep(10 * time.Second)
+			} else {
+				log.Println("Waiting for price to rise..")
 			}
 
 		}

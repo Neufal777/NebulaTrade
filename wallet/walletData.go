@@ -26,6 +26,7 @@ type Order struct {
 type Wallet struct {
 	Symbol       string
 	Balance      float64
+	FirstBuy     float64
 	Available    float64
 	Ammount      float64
 	Status       string
