@@ -79,55 +79,36 @@ func SellingPositions() {
 
 	//check if there's open positions
 
-	open := 0
+	for i := 0; i < len(w.Orders)-1; i++ {
 
-	for _, opened := range w.Orders {
+		boughtat := utils.StringToFloat(w.Orders[i].Price)
 
-		if opened.Active == 1 {
-			open++
-		}
-	}
+		if w.Orders[i].Active != 0 {
 
-	if open != 0 {
+			//Check iff we have a profit
 
-		log.Println("STILL SOME ACTIVE")
-		for i := 0; i < len(w.Orders); i++ {
+			if currentPriceNum > boughtat {
+				/*
+					Sell that ammount at x price and update wallet
+				*/
+				log.Println("Sell this order..", w.Orders[i].OrderID)
 
-			boughtat := utils.StringToFloat(w.Orders[i].Price)
+				ammountToSell := w.Orders[i].Ammount
+				log.Println("--------------------------------")
+				log.Println("Ammount to sell: ", ammountToSell)
+				log.Println("Bought at: ", w.Orders[i].Price)
+				log.Println("Sold at: ", currentPriceNum)
+				log.Println("--------------------------------")
+				w.Orders[i].Active = 0
+				w.OrdNum--
+				w.Status = "BUY MORE"
+				w.WriteInWallet()
 
-			if w.Orders[i].Active != 0 {
-
-				//Check iff we have a profit
-
-				if currentPriceNum > boughtat {
-					/*
-						Sell that ammount at x price and update wallet
-					*/
-					log.Println("Sell this order..", w.Orders[i].OrderID)
-
-					ammountToSell := w.Orders[i].Ammount
-					log.Println("--------------------------------")
-					log.Println("Ammount to sell: ", ammountToSell)
-					log.Println("Bought at: ", w.Orders[i].Price)
-					log.Println("Sold at: ", currentPriceNum)
-					log.Println("--------------------------------")
-					w.Orders[i].Active = 0
-					w.OrdNum--
-					w.Status = "BUY MORE"
-					w.WriteInWallet()
-
-					exchanges.ExecuteSellOrderCURRENCY(ammountToSell[:len(ammountToSell)-13], currentPrice.Price, &w)
-					time.Sleep(10 * time.Second)
-				}
-
+				exchanges.ExecuteSellOrderCURRENCY(ammountToSell[:len(ammountToSell)-9], currentPrice.Price, &w)
+				//time.Sleep(10 * time.Second)
 			}
+
 		}
-
-	} else {
-
-		log.Println("No active orders")
-		w.Status = "BUY"
-		w.WriteInWallet()
 	}
 
 }
