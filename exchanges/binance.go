@@ -146,9 +146,6 @@ func ExecuteSellOrderCURRENCY(ammountToSell string, priceToSell string, w *walle
 		TimeInForce(binance.TimeInForceTypeGTC).Quantity(ammountToSell).
 		Price(priceToSell).Do(context.Background())
 
-	log.Println("PRICE TO SELL", priceToSell)
-	log.Println("AMMOUNT TO SELL", ammountToSell)
-
 	if err != nil {
 		fmt.Println(err)
 		return

@@ -12,7 +12,7 @@ import (
 )
 
 //BeforeBuyingCrypto - before buying X crypto
-func BeforeBuyingCrypto(currency string) {
+func BeforeBuyingCrypto(currency string) float64 {
 
 	//store the prices for x time
 	var allPrices []float64
@@ -33,7 +33,7 @@ func BeforeBuyingCrypto(currency string) {
 
 	priceToBuy := mathnebula.ToFixed(total/30, 8)
 
-	log.Println(priceToBuy)
+	return priceToBuy
 }
 
 //RecurrentBuy -
@@ -56,8 +56,13 @@ func RecurrentBuy() {
 		/*
 			Buy more assets
 		*/
-
 		ammountToBuy := w.Available / utils.StringToFloat(current.Price)
-		exchanges.ExecuteBuyOrderCURRENCY(utils.AnyTypeToString(ammountToBuy), current.Price, &w)
+		truncateAmmountToBuy := mathnebula.ToFixed((ammountToBuy), 7)
+		ammountstring := utils.FloatToString(truncateAmmountToBuy)
+		exchanges.ExecuteBuyOrderCURRENCY(ammountstring[:len(ammountstring)-13], utils.AnyTypeToString(current.Price), &w)
+
+	} else {
+
+		log.Println("waiting for price to drop")
 	}
 }

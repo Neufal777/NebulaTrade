@@ -29,6 +29,8 @@ func RandomProfitPerTrans(min, max float64) float64 {
 //DecisionMakeBuy - where the decisions of buying or selling is made
 func DecisionMakeBuy(w *wallet.Wallet) {
 
+	//mediumprice := BeforeBuyingCrypto(config.CURRENCY)
+
 	//Check at how much we sold and if the actual price is lower
 	buyActualPrice := exchanges.BinancePrice(config.CURRENCY)
 	lastSellFloat := wallet.GetLastSell()
@@ -40,45 +42,25 @@ func DecisionMakeBuy(w *wallet.Wallet) {
 		to check if the price dropped
 	*/
 	difference := lastSellFloat - lastPriceFloat
-	fmt.Println(chalk.Bold.TextStyle("Waiting for price drop to buy..."), chalk.Red)
 
-	/*
-		Showing information about the account
-		 - Ammount of crypto
-		 - Actual Balance
-		 - Transaction...
-	*/
+	fmt.Println(chalk.Bold.TextStyle("Waiting for price drop to buy..."), chalk.Red)
 	console.InformationDisplayConsole()
 
-	//RandomProfitPerTrans(PROFIT, 0.000002)
 	if difference >= config.PROFIT {
 
 		/*
 			EXECUTE BUY ORDER
 		*/
 
-		currentWallet := w.Available //- 0.01646
-		ammountToBuy := currentWallet / lastPriceFloat
-
+		ammountToBuy := w.Available / lastPriceFloat
 		truncateAmmountToBuy := mathnebula.ToFixed((ammountToBuy), 7)
-
 		ammountString := utils.FloatToString(truncateAmmountToBuy)
 
-		//Execute Buy
-		exchanges.ExecuteBuyOrderCURRENCY(ammountString[:len(ammountString)-13], buyActualPrice.Price, w)
+		exchanges.ExecuteBuyOrderCURRENCY(ammountString[:len(ammountString)-13], utils.AnyTypeToString(lastPriceFloat), w)
 
-		//we reset the counter
 		w.Timer = 0
+		w.Status = "BUY MORE"
 		w.WriteInWallet()
-		/*
-			change last sell file with updated info
-			with the lastPriceFloat
-		*/
-
-		/*
-			- Displaying information
-			- Details about the *wallet.Wallet
-		*/
 
 		console.InformationDisplayConsole()
 
@@ -143,92 +125,97 @@ func ExecuteMarket(w *wallet.Wallet) {
 		Check the status (BUY OR SELL)
 	*/
 
-	if w.Timer >= config.COUNTER {
+	// if w.Timer >= config.COUNTER {
 
-		//If we didnt bought anything in X time buy at current price
+	// 	//If we didnt bought anything in X time buy at current price
 
-		orders, allOrders := exchanges.CheckOpenOrdersBinance()
-		ord := exchanges.AllOpenOrdersBinance(allOrders)
+	// 	orders, allOrders := exchanges.CheckOpenOrdersBinance()
+	// 	ord := exchanges.AllOpenOrdersBinance(allOrders)
 
-		if orders == 1 {
+	// 	if orders == 1 {
 
-			for _, o := range ord {
+	// 		for _, o := range ord {
 
-				if o.Status == "BUY" && o.Symbol == config.CURRENCY {
+	// 			if o.Status == "BUY" && o.Symbol == config.CURRENCY {
 
-					//We delete the actual buy order [EXPIRED]
-					exchanges.CancelOrderBinance(o.OrderID)
-					log.Println("Deleted Buy order")
-				}
-			}
+	// 				//We delete the actual buy order [EXPIRED]
+	// 				exchanges.CancelOrderBinance(o.OrderID)
+	// 				log.Println("Deleted Buy order")
+	// 			}
+	// 		}
 
-		}
+	// 	}
 
-		w.Status = "BUY"
-		w.LastSell = 200.0 //
-		w.Timer = 0
-		w.WriteInWallet()
+	// 	w.Status = "BUY"
+	// 	w.LastSell = 200.0 //
+	// 	w.Timer = 0
+	// 	w.WriteInWallet()
 
-	}
+	// }
 
 	actualStatusString := wallet.GetStatus()
-	opened, allorders := exchanges.CheckOpenOrdersBinance()
-	orders := exchanges.AllOpenOrdersBinance(allorders)
+	//opened, allorders := exchanges.CheckOpenOrdersBinance()
+	//orders := exchanges.AllOpenOrdersBinance(allorders)
 
 	switch actualStatusString {
 	case "SELL ORDER":
-		if opened == 0 {
-			w.Status = "BUY"
-			w.Timer = 0
-			w.WriteInWallet()
-			DecisionMakeBuy(w)
-		} else {
+		// if opened == 0 {
+		// 	w.Status = "BUY"
+		// 	w.Timer = 0
+		// 	w.WriteInWallet()
+		// 	DecisionMakeBuy(w)
+		// } else {
 
-			for _, o := range orders {
+		// 	for _, o := range orders {
 
-				if o.Status != "SELL" && o.Symbol != config.CURRENCY {
+		// 		if o.Status != "SELL" && o.Symbol != config.CURRENCY {
 
-					w.Status = "BUY"
-					w.Timer = 0
-					w.WriteInWallet()
-					DecisionMakeBuy(w)
-				}
-			}
+		// 			w.Status = "BUY"
+		// 			w.Timer = 0
+		// 			w.WriteInWallet()
+		// 			DecisionMakeBuy(w)
+		// 		}
+		// 	}
 
-		}
+		// }
 	case "BUY ORDER":
-		if opened == 0 {
-			w.Status = "SELL"
-			w.Timer = 0
-			w.WriteInWallet()
-			DecisionMakeSell()
+		// if opened == 0 {
+		// 	w.Status = "SELL"
+		// 	w.Timer = 0
+		// 	w.WriteInWallet()
+		// 	DecisionMakeSell()
 
-		} else {
+		// } else {
 
-			for _, o := range orders {
+		// 	for _, o := range orders {
 
-				if o.Status != "BUY" && o.Symbol != config.CURRENCY {
+		// 		if o.Status != "BUY" && o.Symbol != config.CURRENCY {
 
-					w.Status = "SELL"
-					w.Timer = 0
-					w.WriteInWallet()
-					DecisionMakeSell()
-				}
-			}
-		}
+		// 			w.Status = "SELL"
+		// 			w.Timer = 0
+		// 			w.WriteInWallet()
+		// 			DecisionMakeSell()
+		// 		}
+		// 	}
+		// }
 
 	case "BUY":
 
 		//Check if there is available funds to buy
 		availablebnb := exchanges.GetBinanceWalletBNB()
+
 		if availablebnb >= 0.02 {
+			w.Status = "BUY MORE"
+			w.WriteInWallet()
 			DecisionMakeBuy(w)
 		} else {
 			log.Println("No funds available")
 		}
 	case "SELL":
-		DecisionMakeSell()
-
+		//DecisionMakeSell()
+		log.Println("Ready to sell..")
+	case "BUY MORE":
+		RecurrentBuy()
 	default:
 		log.Println("Waiting to close an order..")
 	}
