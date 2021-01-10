@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/NebulaTrade/binanceaccount"
 	"github.com/NebulaTrade/config"
@@ -151,7 +150,8 @@ func ExecuteSellOrderCURRENCY(ammountToSell string, priceToSell string, w *walle
 		return
 	}
 
-	time.Sleep(2 * time.Second)
+	w.LastSell = utils.StringToFloat(priceToSell)
+	w.WriteInWallet()
 
 	// openOrders, allOrders := CheckOpenOrdersBinance()
 

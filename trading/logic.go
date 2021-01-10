@@ -66,3 +66,68 @@ func RecurrentBuy() {
 		log.Println("waiting for price to drop")
 	}
 }
+
+//SellingPositions -
+func SellingPositions() {
+
+	//Get all the purchases and open orders
+
+	currentPrice := exchanges.BinancePrice(config.CURRENCY)
+	currentPriceNum := utils.StringToFloat(currentPrice.Price)
+
+	w := wallet.ReadWallet()
+
+	//check if there's open positions
+
+	open := 0
+
+	for _, opened := range w.Orders {
+
+		if opened.Active == 1 {
+			open++
+		}
+	}
+
+	if open != 0 {
+
+		log.Println("STILL SOME ACTIVE")
+		for i := 0; i < len(w.Orders); i++ {
+
+			boughtat := utils.StringToFloat(w.Orders[i].Price)
+
+			if w.Orders[i].Active != 0 {
+
+				//Check iff we have a profit
+
+				if currentPriceNum > boughtat {
+					/*
+						Sell that ammount at x price and update wallet
+					*/
+					log.Println("Sell this order..", w.Orders[i].OrderID)
+
+					ammountToSell := w.Orders[i].Ammount
+					log.Println("--------------------------------")
+					log.Println("Ammount to sell: ", ammountToSell)
+					log.Println("Bought at: ", w.Orders[i].Price)
+					log.Println("Sold at: ", currentPriceNum)
+					log.Println("--------------------------------")
+					w.Orders[i].Active = 0
+					w.OrdNum--
+					w.Status = "BUY MORE"
+					w.WriteInWallet()
+
+					exchanges.ExecuteSellOrderCURRENCY(ammountToSell[:len(ammountToSell)-13], currentPrice.Price, &w)
+					time.Sleep(10 * time.Second)
+				}
+
+			}
+		}
+
+	} else {
+
+		log.Println("No active orders")
+		w.Status = "BUY"
+		w.WriteInWallet()
+	}
+
+}

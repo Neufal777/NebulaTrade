@@ -105,7 +105,7 @@ func DecisionMakeSell() {
 				- Ststus to BUY
 		*/
 		truncatedAmmountToSell := mathnebula.ToFixed(
-			+(exchanges.GetBinanceWalletCurrency(w.Symbol)), 7) - 0.5
+			+(exchanges.GetBinanceWalletCurrency(w.Symbol)), 7)
 		ammountStringSell := utils.FloatToString(truncatedAmmountToSell)
 		w.Timer = 0
 		exchanges.ExecuteSellOrderCURRENCY(ammountStringSell[:len(ammountStringSell)-13], data.Price, &w)
@@ -205,7 +205,7 @@ func ExecuteMarket(w *wallet.Wallet) {
 		availablebnb := exchanges.GetBinanceWalletBNB()
 
 		if availablebnb >= 0.02 {
-			w.Status = "BUY MORE"
+
 			w.WriteInWallet()
 			DecisionMakeBuy(w)
 		} else {
@@ -214,6 +214,7 @@ func ExecuteMarket(w *wallet.Wallet) {
 	case "SELL":
 		//DecisionMakeSell()
 		log.Println("Ready to sell..")
+		SellingPositions()
 	case "BUY MORE":
 		RecurrentBuy()
 	default:

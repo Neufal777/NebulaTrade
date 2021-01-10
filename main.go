@@ -46,6 +46,7 @@ func main() {
 
 	for {
 
+		trading.SellingPositions()
 		w := wallet.ReadWallet()
 
 		if w.Status == "BUY" || w.Status == "BUY ORDER" {
@@ -55,12 +56,5 @@ func main() {
 		trading.ExecuteMarket(&w)
 		time.Sleep(2 * time.Second)
 	}
-
-	// // trading.BeforeBuyingCrypto("XRPBNB")
-	// config.CURRENCY = "XLMBNB"
-	// // w := wallet.ReadWallet()
-	// // exchanges.ExecuteBuyOrderCURRENCY("483", "0.0022", &w)
-
-	// trading.RecurrentBuy()
 
 }
