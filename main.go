@@ -21,7 +21,7 @@ func main() {
 	configCurrency := flag.String("currency", "1234", "Currency")
 	configLimit := flag.Float64("limit", 1, "Limit coins")
 	configProfit := flag.Float64("profit", 0.00002, "Profit to make")
-	configCounter := flag.Int("counter", 1000, "counter")
+	configCounter := flag.Int("counter", 1300, "counter")
 
 	flag.Parse()
 

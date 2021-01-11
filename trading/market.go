@@ -142,9 +142,16 @@ func ExecuteMarket(w *wallet.Wallet) {
 					//We delete the actual buy order [EXPIRED]
 					exchanges.CancelOrderBinance(o.OrderID)
 					log.Println("Deleted Buy orders")
+
+				} else {
+					w.Timer = 0
+					w.WriteInWallet()
 				}
 			}
 
+		} else {
+			w.Timer = 0
+			w.WriteInWallet()
 		}
 
 		w.Status = "BUY"
@@ -216,8 +223,11 @@ func ExecuteMarket(w *wallet.Wallet) {
 	case "SELL":
 		//DecisionMakeSell()
 		log.Println("Ready to sell..")
+		w.Timer = 0
+		w.WriteInWallet()
 		SellingPositions()
 	case "BUY MORE":
+		SellingPositions()
 		RecurrentBuy()
 	default:
 		log.Println("Waiting to close an order..")
