@@ -8,14 +8,12 @@ import (
 	"log"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/NebulaTrade/binanceaccount"
 	"github.com/NebulaTrade/config"
 	"github.com/NebulaTrade/utils"
 	"github.com/NebulaTrade/wallet"
 	"github.com/adshao/go-binance/v2"
-	"github.com/ttacon/chalk"
 )
 
 var (
@@ -23,17 +21,6 @@ var (
 	secretKey = binanceaccount.APISECRET
 	client    = binance.NewClient(apiKey, secretKey)
 )
-
-//Order - defines struct of an order
-type Order struct {
-	Symbol        string
-	OrderID       int64
-	ClientOrderID string
-	Price         string
-	Ammount       string
-	Status        string //BUY OR SELL ORDER
-	Type          string //LIMIT, STOP, ETC
-}
 
 //BinanceCoin -
 type BinanceCoin struct {
@@ -112,7 +99,7 @@ func GetBinanceWalletCurrency(currency string) float64 {
 //ExecuteBuyOrderCURRENCY -
 func ExecuteBuyOrderCURRENCY(ammountToBuy string, priceToBuy string, w *wallet.Wallet) {
 
-	_, err := client.NewCreateOrderService().Symbol(config.CURRENCY).
+	resp, err := client.NewCreateOrderService().Symbol(config.CURRENCY).
 		Side(binance.SideTypeBuy).Type(binance.OrderTypeLimit).
 		TimeInForce(binance.TimeInForceTypeGTC).Quantity(ammountToBuy).
 		Price(priceToBuy).Do(context.Background())
@@ -122,63 +109,31 @@ func ExecuteBuyOrderCURRENCY(ammountToBuy string, priceToBuy string, w *wallet.W
 		return
 	}
 
-	time.Sleep(2 * time.Second)
-	/*
-		If the order is made successfuly update the wallet
-	*/
-	opened, allOrders := CheckOpenOrdersBinance()
+	log.Println("Order: ", resp)
 
-	switch opened {
-	case 0:
+	//Add the order in the order list, update wallet
+	w.Orders = append(w.Orders, wallet.Order{
+		Symbol:        resp.Symbol,
+		OrderID:       resp.OrderID,
+		ClientOrderID: resp.ClientOrderID,
+		Price:         resp.Price,
+		Ammount:       resp.OrigQuantity,
+		Status:        utils.AnyTypeToString(resp.Side),
+		Type:          utils.AnyTypeToString(resp.Type),
+		Active:        1, //not sold yet
+	})
 
-		//If there is no open orders
+	w.OrdNum++
+
+	if w.OrdNum >= 3 {
 		w.Status = "SELL"
-		w.Balance = w.Available
-		w.LastBuy = utils.StringToFloat(priceToBuy)
-		w.Ammount = GetBinanceWalletCurrency(w.Symbol)
-		w.Timer = 0
-		w.Transactions++
-
-		//Write the update information in our register
-		w.WriteInWallet()
-
-		fmt.Println(chalk.Bold.TextStyle("BUY ORDER EXECUTED!"), chalk.Green)
-
-	case 1:
-
-		orders := AllOpenOrdersBinance(allOrders)
-
-		for _, ord := range orders {
-
-			if ord.Status == "BUY" && ord.Symbol == config.CURRENCY {
-
-				//That means we still have open order for buying
-				w.Status = "BUY ORDER"
-				w.Balance = w.Available
-				w.LastBuy = utils.StringToFloat(priceToBuy)
-				w.Ammount = GetBinanceWalletCurrency(w.Symbol)
-				w.Timer = 0
-				w.Transactions++
-				w.WriteInWallet()
-
-			} else {
-
-				//If there is no open orders for specific Coin and status
-				w.Status = "SELL"
-				w.LastBuy = utils.StringToFloat(priceToBuy)
-				w.Ammount = GetBinanceWalletCurrency(w.Symbol)
-				w.Balance = w.Available
-				w.Timer = 0
-				w.Transactions++
-
-				//Write the update information in our register
-				w.WriteInWallet()
-
-				fmt.Println(chalk.Bold.TextStyle("BUY ORDER EXECUTED!"), chalk.Green)
-			}
-		}
-
 	}
+
+	w.Transactions++
+	w.LastBuy = utils.StringToFloat(priceToBuy)
+
+	//Record changes
+	w.WriteInWallet()
 
 }
 
@@ -190,69 +145,68 @@ func ExecuteSellOrderCURRENCY(ammountToSell string, priceToSell string, w *walle
 		TimeInForce(binance.TimeInForceTypeGTC).Quantity(ammountToSell).
 		Price(priceToSell).Do(context.Background())
 
-	log.Println("PRICE TO SELL", priceToSell)
-	log.Println("AMMOUNT TO SELL", ammountToSell)
-
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	time.Sleep(2 * time.Second)
 
-	openOrders, allOrders := CheckOpenOrdersBinance()
+	w.LastSell = utils.StringToFloat(priceToSell)
+	w.WriteInWallet()
 
-	switch openOrders {
-	case 0:
+	// openOrders, allOrders := CheckOpenOrdersBinance()
 
-		/*
-			If the order is made successfuly update the wallet
-		*/
+	// switch openOrders {
+	// case 0:
 
-		w.Status = "BUY"
-		w.Balance = w.Available
-		w.Transactions++
-		w.Ammount = 0
-		w.LastSell = utils.StringToFloat(priceToSell)
-		w.Timer = 0
-		w.WriteInWallet()
+	// 	/*
+	// 		If the order is made successfuly update the wallet
+	// 	*/
 
-		fmt.Println(chalk.Bold.TextStyle("SELL ORDER EXECUTED!"), chalk.Green)
+	// 	w.Status = "BUY"
+	// 	w.Balance = w.Available
+	// 	w.Transactions++
+	// 	w.Ammount = 0
+	// 	w.LastSell = utils.StringToFloat(priceToSell)
+	// 	w.Timer = 0
+	// 	w.WriteInWallet()
 
-	case 1:
+	// 	fmt.Println(chalk.Bold.TextStyle("SELL ORDER EXECUTED!"), chalk.Green)
 
-		orders := AllOpenOrdersBinance(allOrders)
+	// case 1:
 
-		for _, ord := range orders {
+	// 	orders := AllOpenOrdersBinance(allOrders)
 
-			if ord.Status == "SELL" && ord.Symbol == config.CURRENCY {
+	// 	for _, ord := range orders {
 
-				//That means we still have open order for selling
-				w.Status = "SELL ORDER"
-				w.Balance = w.Available
-				w.LastSell = utils.StringToFloat(priceToSell)
-				w.Ammount = GetBinanceWalletCurrency(w.Symbol)
-				w.Timer = 0
-				w.Transactions++
-				w.WriteInWallet()
+	// 		if ord.Status == "SELL" && ord.Symbol == config.CURRENCY {
 
-			} else {
+	// 			//That means we still have open order for selling
+	// 			w.Status = "SELL ORDER"
+	// 			w.Balance = w.Available
+	// 			w.LastSell = utils.StringToFloat(priceToSell)
+	// 			w.Ammount = GetBinanceWalletCurrency(w.Symbol)
+	// 			w.Timer = 0
+	// 			w.Transactions++
+	// 			w.WriteInWallet()
 
-				//If there is no open orders for specific Coin and status
-				w.Status = "BUY"
-				w.LastSell = utils.StringToFloat(priceToSell)
-				w.Ammount = 0
-				w.Balance = w.Available
-				w.Timer = 0
-				w.Transactions++
+	// 		} else {
 
-				//Write the update information in our register
-				w.WriteInWallet()
+	// 			//If there is no open orders for specific Coin and status
+	// 			w.Status = "BUY"
+	// 			w.LastSell = utils.StringToFloat(priceToSell)
+	// 			w.Ammount = 0
+	// 			w.Balance = w.Available
+	// 			w.Timer = 0
+	// 			w.Transactions++
 
-				fmt.Println(chalk.Bold.TextStyle("SELL ORDER EXECUTED!"), chalk.Green)
-			}
-		}
+	// 			//Write the update information in our register
+	// 			w.WriteInWallet()
 
-	}
+	// 			fmt.Println(chalk.Bold.TextStyle("SELL ORDER EXECUTED!"), chalk.Green)
+	// 		}
+	// 	}
+
+	// }
 }
 
 //CheckOpenOrdersBinance -
@@ -290,13 +244,13 @@ func CheckOpenOrdersBinance() (int, []*binance.Order) {
 }
 
 //AllOpenOrdersBinance - show all open orders in binance
-func AllOpenOrdersBinance(allOrders []*binance.Order) []Order {
+func AllOpenOrdersBinance(allOrders []*binance.Order) []wallet.Order {
 
-	var ActiveOrders []Order
+	var ActiveOrders []wallet.Order
 
 	for _, o := range allOrders {
 
-		order := Order{
+		order := wallet.Order{
 			Symbol:        o.Symbol,
 			OrderID:       o.OrderID,
 			ClientOrderID: o.ClientOrderID,
