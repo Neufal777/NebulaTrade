@@ -29,8 +29,6 @@ func RandomProfitPerTrans(min, max float64) float64 {
 //DecisionMakeBuy - where the decisions of buying or selling is made
 func DecisionMakeBuy(w *wallet.Wallet) {
 
-	//mediumprice := BeforeBuyingCrypto(config.CURRENCY)
-
 	//Check at how much we sold and if the actual price is lower
 	buyActualPrice := exchanges.BinancePrice(config.CURRENCY)
 	lastSellFloat := wallet.GetLastSell()
@@ -93,7 +91,6 @@ func DecisionMakeSell() {
 	fmt.Println(chalk.Bold.TextStyle("Waiting to sell.."), chalk.Green)
 	console.InformationDisplayConsole()
 
-	//RandomProfitPerTrans(PROFIT, 0.000002)
 	if differenceToSell >= config.PROFIT {
 
 		/*
@@ -163,50 +160,8 @@ func ExecuteMarket(w *wallet.Wallet) {
 	}
 
 	actualStatusString := wallet.GetStatus()
-	//opened, allorders := exchanges.CheckOpenOrdersBinance()
-	//orders := exchanges.AllOpenOrdersBinance(allorders)
 
 	switch actualStatusString {
-	case "SELL ORDER":
-		// if opened == 0 {
-		// 	w.Status = "BUY"
-		// 	w.Timer = 0
-		// 	w.WriteInWallet()
-		// 	DecisionMakeBuy(w)
-		// } else {
-
-		// 	for _, o := range orders {
-
-		// 		if o.Status != "SELL" && o.Symbol != config.CURRENCY {
-
-		// 			w.Status = "BUY"
-		// 			w.Timer = 0
-		// 			w.WriteInWallet()
-		// 			DecisionMakeBuy(w)
-		// 		}
-		// 	}
-
-		// }
-	case "BUY ORDER":
-		// if opened == 0 {
-		// 	w.Status = "SELL"
-		// 	w.Timer = 0
-		// 	w.WriteInWallet()
-		// 	DecisionMakeSell()
-
-		// } else {
-
-		// 	for _, o := range orders {
-
-		// 		if o.Status != "BUY" && o.Symbol != config.CURRENCY {
-
-		// 			w.Status = "SELL"
-		// 			w.Timer = 0
-		// 			w.WriteInWallet()
-		// 			DecisionMakeSell()
-		// 		}
-		// 	}
-		// }
 
 	case "BUY":
 
@@ -221,11 +176,12 @@ func ExecuteMarket(w *wallet.Wallet) {
 			log.Println("No funds available")
 		}
 	case "SELL":
-		//DecisionMakeSell()
+
 		log.Println("Ready to sell..")
 		w.Timer = 0
 		w.WriteInWallet()
 		SellingPositions()
+
 	case "BUY MORE":
 		SellingPositions()
 		RecurrentBuy()
