@@ -2,11 +2,9 @@ package main
 
 import (
 	"flag"
-	"time"
 
 	"github.com/NebulaTrade/config"
 	"github.com/NebulaTrade/exchanges"
-	"github.com/NebulaTrade/trading"
 	"github.com/NebulaTrade/wallet"
 )
 
@@ -46,15 +44,15 @@ func main() {
 
 	for {
 
-		trading.SellingPositions()
-		w := wallet.ReadWallet()
+		// trading.SellingPositions()
+		// w := wallet.ReadWallet()
 
-		if w.Status == "BUY MORE" || w.Status == "BUY" {
-			w.Timer++
-		}
-		w.WriteInWallet()
-		trading.ExecuteMarket(&w)
-		time.Sleep(2 * time.Second)
+		// if w.Status == "BUY MORE" || w.Status == "BUY" {
+		// 	w.Timer++
+		// }
+		// w.WriteInWallet()
+		// trading.ExecuteMarket(&w)
+		// time.Sleep(2 * time.Second)
 	}
 
 }
