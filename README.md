@@ -42,7 +42,7 @@ Once one of the acquisitions is sold, another buy order at a lower price is set.
 I leave you a drawing of how it would work
 
 
-![Strategy](https://raw.githubusercontent.com/Neufal777/NebulaTrade/main/img/image.png?token=AEXWBB4EMGQX4HDEBYS7723AAMM7I)
+![Strategy](https://github.com/Neufal777/NebulaTrade/blob/main/img/image.png)
 
 
 ### Generated file:
