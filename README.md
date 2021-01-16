@@ -28,9 +28,6 @@ binanceaccount > config.go
  *Make sure you have funds in your corresponding binance wallets [in this case BNB available], if not, a "No funds available" error message will be shown*
  
 
-```bash
-go get github.com/Neufal777/InstagramExtractor
-```
 
 ### How it works ?
 
