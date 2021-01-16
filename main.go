@@ -19,22 +19,17 @@ func main() {
 	BinanceWallet := exchanges.GetBinanceWalletBNB()
 
 	configCurrency := flag.String("currency", "1234", "Currency")
-	configLimit := flag.Float64("limit", 1, "Limit coins")
 	configProfit := flag.Float64("profit", 0.00002, "Profit to make")
-	configCounter := flag.Int("counter", 1300, "counter")
 
 	flag.Parse()
 
 	config.CURRENCY = *configCurrency
-	limit := *configLimit
 	config.PROFIT = *configProfit
-	config.COUNTER = *configCounter
 
 	/*
 		Set all the initial config data to start initial buy
 	*/
 	w := wallet.ReadWallet()
-	w.Limit = limit
 	w.Symbol = config.CURRENCY
 	w.LastSell = 5000
 	w.Transactions = 0
