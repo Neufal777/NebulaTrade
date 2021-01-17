@@ -43,7 +43,8 @@ I leave you a drawing of how it would work
 
 
 ### Generated file:
-This function returns a struct called `User` with the data
+
+
 ```bash
 {
 
