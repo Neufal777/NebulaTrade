@@ -46,6 +46,7 @@ func main() {
 
 		if w.Status == "BUY MORE" || w.Status == "BUY" {
 			w.Timer++
+
 		}
 		w.WriteInWallet()
 		trading.ExecuteMarket(&w)

@@ -88,9 +88,9 @@ func GetBinanceWalletCurrency(currency string) float64 {
 		if x.Asset == currency {
 			binanceWalletFloat := utils.StringToFloat(res.Balances[count].Free)
 			return binanceWalletFloat
-		} else {
-			count++
 		}
+
+		count++
 	}
 
 	return 0

@@ -6,7 +6,7 @@
 
 Use this at your OWN risk! this is for educational purposes, and even it works, the author of this repository is not responsable for any loss for bad usage or market crash ! 
 
-> At this moment it just works for binance exchange, planning to add more [Bitfinex, bitstamp]
+> At this moment it just works for binance exchange.
 
 > Planning to use more trading strategies, stop loss, cut loose, etc.
 
@@ -92,4 +92,7 @@ I leave you a drawing of how it would work
 Note: The Orders with *Active : 0*, means that the ammount was already sold and profit taken.
 
 #### Conclusion..
-_It is finished? of course NOT!, there's a looot to do and some things to fix but at the moment is completly functional and you can try it, but remember.. at your own RISK!  :)_
+
+_It is finished? of course NOT!, there's a looot to do and some things to fix but at the moment is completly functional and you can use it, but remember.. at your own RISK!  :)_
+_Note: This was just for learning, that means that will not be mantained, feel free to add anything :)_
+
